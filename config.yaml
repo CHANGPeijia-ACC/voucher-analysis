@@ -1,0 +1,44 @@
+# Thresholds for the journal entry tests and the bank reconciliation.
+# Amounts are in CNY. Change values here, not in the code.
+
+jet:
+  JET00_validation:
+    voucher_no_pattern: "^JV\\d{6}$"     # e.g. JV000123
+
+  JET01_unbalanced:
+    tolerance: 0.01                      # debit and credit may differ by less than this
+
+  JET02_duplicates:
+    window_days: 7                       # same amount, supplier and account within N days
+
+  JET03_weekend_holiday:
+    country: CN                          # country code for the holidays package
+
+  JET04_outside_hours:
+    work_start: "08:00"
+    work_end: "20:00"
+
+  JET05_period_close:
+    close_day: 5                         # books for a month close on this day of the next month
+    month_end_days: 3                    # last N days of a month count as month end
+
+  JET06_round_amounts:
+    min_amount: 10000                    # ignore amounts below this
+    multiples: [10000, 1000]
+
+  JET08_split_payments:
+    approval_limit: 50000
+    window_days: 7
+    min_payments: 2
+
+  JET09_keywords:
+    keywords: [adjustment, reversal, correction, manual, 调整, 冲回, 冲销, 暂估, 更正]
+
+  JET10_outliers:
+    z_threshold: 3.5                     # robust z-score cut-off
+    min_lines: 30                        # skip accounts with fewer lines than this
+
+reconcile:
+  date_window_days: 3                    # bank date may be up to N days before or after book date
+  amount_tolerance: 0.005                # amounts equal if the difference is below this
+  max_group_size: 5                      # most book lines one bank line may cover
