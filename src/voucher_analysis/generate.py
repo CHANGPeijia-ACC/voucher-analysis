@@ -506,3 +506,211 @@ def vouchers_to_gl(vouchers):
                 "description": v["description"],
             })
     return pd.DataFrame(rows)
+
+
+# ============================================================
+# Injected anomalies
+# ============================================================
+# Each function changes or adds vouchers and tags them with the anomaly
+# type. Only vouchers without a tag are picked, so each tagged voucher has
+# exactly one known anomaly. Except for split payments, anomalies go into
+# vouchers that do not touch the bank, so the bank statement stays clean.
+
+ANOMALY_COUNT = 15        # vouchers per anomaly type
+DUPLICATE_PAIRS = 8       # each pair tags the original and the copy
+SPLIT_GROUPS = 5          # each group has three payments
+APPROVAL_LIMIT = 50000    # matches the config default
+
+NON_BANK_KINDS = ("purchase", "expense_invoice", "sale")
+
+KEYWORD_TEXTS = [
+    "Manual adjustment per management request",
+    "Correction of prior month posting",
+    "Reversal of duplicate invoice",
+    "调整上月入库差异",
+    "冲回多计费用",
+    "暂估入库",
+]
+
+
+def pick(vouchers, rng, count, kinds=NON_BANK_KINDS, condition=None):
+    """Randomly pick untagged vouchers of the given kinds."""
+    eligible = [v for v in vouchers
+                if v["anomaly"] is None and v["kind"] in kinds
+                and (condition is None or condition(v))]
+    chosen = rng.choice(len(eligible), size=count, replace=False)
+    return [eligible[i] for i in chosen]
+
+
+def office_hours_time(day, rng):
+    """A random time between 09:00 and 18:30 on `day`."""
+    minutes = int(rng.integers(9 * 60, 18 * 60 + 30))
+    return datetime.combine(day, time(minutes // 60, minutes % 60))
+
+
+def set_invoice_net(v, net):
+    """Change the net amount of a supplier invoice and recalculate VAT and payable."""
+    account = v["lines"][0]["account_code"]
+    v["lines"] = invoice_lines(account, money(net), VAT_RATE[account])
+
+
+def transpose_digits(amount, rng):
+    """Swap two neighbouring digits, a common typing error (1250.00 becomes 1520.00)."""
+    whole, cents = f"{amount:.2f}".split(".")
+    positions = [i for i in range(len(whole) - 1) if whole[i] != whole[i + 1]]
+    if not positions:
+        return money(amount + 100)
+    i = int(rng.choice(positions))
+    swapped = whole[:i] + whole[i + 1] + whole[i] + whole[i + 2:]
+    return money(f"{swapped}.{cents}")
+
+
+def inject_unbalanced(vouchers, hols, rng):
+    """Mistype the first debit line so debit no longer equals credit."""
+    for v in pick(vouchers, rng, ANOMALY_COUNT):
+        first = v["lines"][0]
+        first["debit"] = transpose_digits(first["debit"], rng)
+        v["anomaly"] = "unbalanced"
+
+
+def inject_duplicates(vouchers, hols, rng):
+    """Post the same supplier invoice again one to five days later."""
+    originals = pick(vouchers, rng, DUPLICATE_PAIRS, kinds=("purchase", "expense_invoice"),
+                     condition=lambda v: v["posting_date"].month < 12)
+    for original in originals:
+        copy = voucher(original["kind"], original["posting_date"],
+                       [dict(ln) for ln in original["lines"]], original["description"],
+                       original["department"], original["supplier"], original["counterparty"])
+        later = original["posting_date"] + timedelta(days=int(rng.integers(1, 6)))
+        copy["posting_date"] = working_day_on_or_after(later, hols)
+        copy["prepared_by"] = str(rng.choice(PREPARERS))
+        copy["approved_by"] = str(rng.choice(APPROVERS))
+        copy["entry_time"] = normal_entry_time(copy["posting_date"], hols, rng)
+        original["anomaly"] = copy["anomaly"] = "duplicate_entry"
+        vouchers.append(copy)
+
+
+def inject_weekend_holiday(vouchers, hols, rng):
+    """Move the posting date to a weekend or public holiday in the same month."""
+    for v in pick(vouchers, rng, ANOMALY_COUNT):
+        day = v["posting_date"]
+        off_days = [date(day.year, day.month, d)
+                    for d in range(1, month_end(day.year, day.month).day + 1)
+                    if not is_working_day(date(day.year, day.month, d), hols)]
+        new_day = off_days[int(rng.integers(len(off_days)))]
+        v["posting_date"] = new_day
+        v["entry_time"] = office_hours_time(new_day, rng)
+        v["anomaly"] = "weekend_holiday"
+
+
+def inject_late_night(vouchers, hols, rng):
+    """Keep the entry date but change the entry time to between 22:00 and 05:59."""
+    for v in pick(vouchers, rng, ANOMALY_COUNT):
+        hour = int(rng.choice([22, 23, 0, 1, 2, 3, 4, 5]))
+        v["entry_time"] = datetime.combine(v["entry_time"].date(),
+                                           time(hour, int(rng.integers(0, 60))))
+        v["anomaly"] = "late_night"
+
+
+def inject_after_close(vouchers, hols, rng):
+    """Enter the voucher 3 to 40 days after the period close deadline."""
+    for v in pick(vouchers, rng, ANOMALY_COUNT):
+        late = close_deadline(v["posting_date"]) + timedelta(days=int(rng.integers(3, 41)))
+        v["entry_time"] = office_hours_time(working_day_on_or_after(late, hols), rng)
+        v["anomaly"] = "after_close"
+
+
+def inject_round_amounts(vouchers, hols, rng):
+    """Set a service invoice to a round net amount between 10,000 and 40,000."""
+    for v in pick(vouchers, rng, ANOMALY_COUNT, kinds=("expense_invoice",),
+                  condition=lambda v: v["lines"][0]["account_code"] in ("6606", "6611")):
+        if rng.random() < 0.5:
+            net = 10000 * int(rng.integers(1, 5))
+        else:
+            net = 1000 * int(rng.integers(11, 40))
+        set_invoice_net(v, net)
+        v["anomaly"] = "round_amount"
+
+
+def inject_same_preparer_approver(vouchers, hols, rng):
+    """The person who prepared the voucher also approved it."""
+    for v in pick(vouchers, rng, ANOMALY_COUNT):
+        v["approved_by"] = v["prepared_by"]
+        v["anomaly"] = "same_preparer_approver"
+
+
+def inject_split_payments(vouchers, hols, rng):
+    """Three payments to one supplier on consecutive working days, each just
+    under the approval limit, together well above it."""
+    workdays = [d for d in working_days_in_year(YEAR, hols) if 2 <= d.month <= 11]
+    for _ in range(SPLIT_GROUPS):
+        supplier = str(rng.choice(SUPPLIERS["1405"]))
+        day = workdays[int(rng.integers(len(workdays)))]
+        for _ in range(3):
+            amount = money(rng.uniform(0.84, 0.998) * APPROVAL_LIMIT)
+            lines = [line("2202", debit=amount), line("1002", credit=amount)]
+            v = voucher("payment", day, lines, "Payment to supplier", "Finance",
+                        supplier, supplier)
+            v["prepared_by"] = str(rng.choice(PREPARERS))
+            v["approved_by"] = str(rng.choice(APPROVERS))
+            v["entry_time"] = normal_entry_time(day, hols, rng)
+            v["anomaly"] = "split_payment"
+            vouchers.append(v)
+            day = next_working_day(day, hols)
+
+
+def inject_keywords(vouchers, hols, rng):
+    """Replace the description with wording that often hides manual adjustments."""
+    for v in pick(vouchers, rng, ANOMALY_COUNT):
+        v["description"] = KEYWORD_TEXTS[int(rng.integers(len(KEYWORD_TEXTS)))]
+        v["anomaly"] = "suspicious_keyword"
+
+
+def inject_extreme_amounts(vouchers, hols, rng):
+    """Multiply a normal invoice by 15 to 30 times."""
+    for v in pick(vouchers, rng, ANOMALY_COUNT, kinds=("purchase", "expense_invoice"),
+                  condition=lambda v: v["lines"][0]["account_code"] != "1601"):
+        set_invoice_net(v, v["lines"][0]["debit"] * rng.uniform(15, 30))
+        v["anomaly"] = "extreme_amount"
+
+
+INJECTORS = [
+    inject_unbalanced,
+    inject_duplicates,
+    inject_weekend_holiday,
+    inject_late_night,
+    inject_after_close,
+    inject_round_amounts,
+    inject_same_preparer_approver,
+    inject_split_payments,
+    inject_keywords,
+    inject_extreme_amounts,
+]
+
+
+def inject_anomalies(vouchers, hols, rng):
+    """Run every injector once, in a fixed order so the seed gives the same result."""
+    for inject in INJECTORS:
+        inject(vouchers, hols, rng)
+
+
+def ground_truth(vouchers):
+    """One row per voucher with an injected anomaly."""
+    rows = [{"voucher_no": v["voucher_no"], "anomaly_type": v["anomaly"]}
+            for v in vouchers if v["anomaly"]]
+    return pd.DataFrame(rows, columns=["voucher_no", "anomaly_type"])
+
+
+def generate_gl(seed=SEED, year=YEAR):
+    """Build the general ledger and its ground truth.
+
+    Returns (gl, ground_truth, vouchers). The voucher list is used to
+    build the bank statement.
+    """
+    rng = np.random.default_rng(seed)
+    hols = make_holidays(year)
+    vouchers = normal_vouchers(year, hols, rng)
+    assign_people_and_times(vouchers, hols, rng)
+    inject_anomalies(vouchers, hols, rng)
+    assign_voucher_numbers(vouchers)
+    return vouchers_to_gl(vouchers), ground_truth(vouchers), vouchers
