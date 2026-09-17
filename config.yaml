@@ -6,7 +6,7 @@ jet:
     voucher_no_pattern: "^JV\\d{6}$"     # e.g. JV000123
 
   JET01_unbalanced:
-    tolerance: 0.01                      # debit and credit may differ by less than this
+    tolerance: 0.005                     # half a cent: catches a 1 cent difference, ignores float noise
 
   JET02_duplicates:
     window_days: 7                       # same amount, supplier and account within N days
@@ -27,6 +27,7 @@ jet:
     multiples: [10000, 1000]
 
   JET08_split_payments:
+    bank_account: "1002"                 # payments are credits to this account
     approval_limit: 50000
     window_days: 7
     min_payments: 2
@@ -37,6 +38,7 @@ jet:
   JET10_outliers:
     z_threshold: 3.5                     # robust z-score cut-off
     min_lines: 30                        # skip accounts with fewer lines than this
+    log_scale: true                      # score log(amount), since amounts are right-skewed
 
 reconcile:
   opening_balance: 5000000               # book and bank agree at the start of the year
