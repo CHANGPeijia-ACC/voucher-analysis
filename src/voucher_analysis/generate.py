@@ -92,7 +92,7 @@ SALARY_BASE = {
 # Normal net amount per account: (median, spread). Amounts follow a
 # lognormal distribution: most are near the median, a few are much larger.
 AMOUNT_PROFILE = {
-    "1405": (15000, 0.7),
+    "1405": (7000, 0.7),
     "1601": (300000, 0.4),
     "6001": (48000, 0.7),
     "6601": (2500, 0.6),
