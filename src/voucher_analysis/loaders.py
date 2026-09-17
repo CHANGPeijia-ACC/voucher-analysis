@@ -38,7 +38,15 @@ def read_gl(path):
     """
     df = pd.read_csv(path, encoding=ENCODING, dtype=str, keep_default_na=False)
     check_columns(df, GL_COLUMNS, "General ledger")
+    return prepare_gl(df)
 
+
+def prepare_gl(df):
+    """Convert a general ledger table of text values into proper types.
+
+    Separate from read_gl so tests can build a small ledger in code and
+    have it parsed exactly like a file.
+    """
     df = df.replace("", pd.NA)
     df["line_no"] = pd.to_numeric(df["line_no"], errors="coerce").astype("Int64")
     df["posting_date"] = pd.to_datetime(df["posting_date"], errors="coerce")
