@@ -180,12 +180,16 @@ def money(value):
 def draw_amount(rng, account):
     """Draw a normal net amount for an account from its lognormal profile.
 
-    Amounts are capped at five times the median so that the normal data
-    has no extreme values; extreme values are injected separately.
+    Values outside 50 to five times the median are drawn again, so normal
+    data has no extreme values. Extreme values are injected separately.
+    Drawing again, instead of cutting values at the limit, avoids many
+    lines with exactly the same round limit amount.
     """
     median, spread = AMOUNT_PROFILE[account]
-    value = rng.lognormal(mean=np.log(median), sigma=spread)
-    return money(min(max(value, 50), median * 5))
+    while True:
+        value = rng.lognormal(mean=np.log(median), sigma=spread)
+        if 50 <= value <= median * 5:
+            return money(value)
 
 
 def line(account, debit=0.0, credit=0.0, department=None):
