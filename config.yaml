@@ -39,6 +39,7 @@ jet:
     min_lines: 30                        # skip accounts with fewer lines than this
 
 reconcile:
+  opening_balance: 5000000               # book and bank agree at the start of the year
   date_window_days: 3                    # bank date may be up to N days before or after book date
   amount_tolerance: 0.005                # amounts equal if the difference is below this
   max_group_size: 5                      # most book lines one bank line may cover
