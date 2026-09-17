@@ -6,10 +6,13 @@ so the tests can be measured against them.
 """
 
 from datetime import date, datetime, time, timedelta
+from pathlib import Path
 
 import holidays
 import numpy as np
 import pandas as pd
+
+from voucher_analysis.loaders import ENCODING
 
 # ============================================================
 # Reference lists
@@ -714,3 +717,169 @@ def generate_gl(seed=SEED, year=YEAR):
     inject_anomalies(vouchers, hols, rng)
     assign_voucher_numbers(vouchers)
     return vouchers_to_gl(vouchers), ground_truth(vouchers), vouchers
+
+
+# ============================================================
+# Bank statement
+# ============================================================
+# The bank statement is built from the vouchers that touch account 1002.
+# It has no voucher numbers. Online transfers settle on any calendar day,
+# so bank dates are not moved to working days.
+
+OUTSTANDING_PAYMENTS = 3   # paid in late December, cleared by the bank in January
+DEPOSITS_IN_TRANSIT = 2    # received in late December, credited by the bank in January
+AMOUNT_DIFFERENCES = 3     # bank deducted a transfer fee from the payment
+TRANSFER_FEE = 25.00
+
+BANK_FEE_PARTY = "Bank service charge 银行手续费"
+DIRECT_DEBITS = [
+    ("Donghu Telecom 东湖通信", 3000, 6000),
+    ("Social insurance direct debit 社保代扣", 20000, 30000),
+]
+
+
+def bank_lag(amount, kind, rng):
+    """Days from book date to bank date.
+
+    Payments reach the bank 0 to 3 days after booking. Receipts are often
+    seen by the bank first, so the bank date is 0 or 1 day earlier.
+    """
+    if kind == "bank_fee":
+        return 0
+    if amount < 0:
+        return int(rng.choice([0, 1, 2, 3], p=[0.3, 0.4, 0.2, 0.1]))
+    return -int(rng.choice([0, 1], p=[0.6, 0.4]))
+
+
+def pick_special_cases(vouchers, year, rng):
+    """Choose the vouchers that become outstanding items or amount differences.
+
+    Returns a dict from voucher_no to the special case name.
+    """
+    def candidates(kinds, condition):
+        return [v for v in vouchers
+                if v["kind"] in kinds and v["anomaly"] is None
+                and v["bank_group"] is None and condition(v)]
+
+    late_december = lambda v: v["posting_date"] >= date(year, 12, 20)
+    mid_year = lambda v: 3 <= v["posting_date"].month <= 10
+
+    groups = [
+        ("outstanding_payment", OUTSTANDING_PAYMENTS,
+         candidates(("payment", "direct_expense", "utilities"), late_december)),
+        ("deposit_in_transit", DEPOSITS_IN_TRANSIT, candidates(("receipt",), late_december)),
+        ("amount_difference", AMOUNT_DIFFERENCES, candidates(("payment",), mid_year)),
+    ]
+    special = {}
+    for name, count, pool in groups:
+        for i in rng.choice(len(pool), size=count, replace=False):
+            special[pool[int(i)]["voucher_no"]] = name
+    return special
+
+
+def book_to_bank_items(vouchers, year, rng):
+    """Turn bank vouchers into bank items: one item per voucher, or one per bank group.
+
+    Each item is a dict with bank_date, amount, counterparty, the voucher
+    numbers it covers and its match type.
+    """
+    special = pick_special_cases(vouchers, year, rng)
+    items = []
+    groups = {}
+
+    for v in vouchers:
+        amount = bank_amount(v)
+        if amount == 0:
+            continue
+        if v["bank_group"]:
+            groups.setdefault(v["bank_group"], []).append(v)
+            continue
+
+        case = special.get(v["voucher_no"], "one_to_one")
+        bank_date = v["posting_date"] + timedelta(days=bank_lag(amount, v["kind"], rng))
+        if case in ("outstanding_payment", "deposit_in_transit"):
+            bank_date = v["posting_date"] + timedelta(days=int(rng.integers(12, 20)))
+        if case == "amount_difference":
+            amount = money(amount - TRANSFER_FEE)
+        items.append({"bank_date": max(bank_date, date(year, 1, 1)), "amount": amount,
+                      "counterparty": v["counterparty"],
+                      "voucher_nos": [v["voucher_no"]], "match_type": case})
+
+    for members in groups.values():
+        first = members[0]
+        lag = bank_lag(-1, first["kind"], rng)
+        items.append({"bank_date": first["posting_date"] + timedelta(days=lag),
+                      "amount": money(sum(bank_amount(v) for v in members)),
+                      "counterparty": first["counterparty"],
+                      "voucher_nos": [v["voucher_no"] for v in members],
+                      "match_type": "one_to_many"})
+    return items
+
+
+def bank_only_items(year, hols, rng):
+    """Items the bank recorded but the books did not: December charges and direct debits."""
+    last_day = working_day_on_or_before(date(year, 12, 31), hols)
+    items = [{"bank_date": last_day, "amount": -money(rng.uniform(80, 400)),
+              "counterparty": BANK_FEE_PARTY, "voucher_nos": [], "match_type": "bank_fee"}]
+    for party, low, high in DIRECT_DEBITS:
+        day = working_day_on_or_after(date(year, 12, int(rng.integers(15, 27))), hols)
+        items.append({"bank_date": day, "amount": -money(rng.uniform(low, high)),
+                      "counterparty": party, "voucher_nos": [], "match_type": "direct_debit"})
+    return items
+
+
+def build_bank_statement(vouchers, year, hols, rng):
+    """Build the bank statement for the year and the bank-side ground truth.
+
+    Book items whose bank date falls after year end do not appear on the
+    statement. They are book-only items, whether chosen on purpose or
+    caused by a normal date lag.
+    """
+    items = book_to_bank_items(vouchers, year, rng) + bank_only_items(year, hols, rng)
+    for item in items:
+        if item["bank_date"].year > year:
+            item["match_type"] = ("outstanding_payment" if item["amount"] < 0
+                                  else "deposit_in_transit")
+
+    on_statement = sorted((i for i in items if i["bank_date"].year == year),
+                          key=lambda i: (i["bank_date"], i["amount"]))
+    bank_rows = []
+    truth_rows = []
+    for n, item in enumerate(on_statement, start=1):
+        item["bank_ref"] = f"BR{n:06d}"
+        bank_rows.append({"bank_date": item["bank_date"].isoformat(), "amount": item["amount"],
+                          "counterparty": item["counterparty"], "bank_ref": item["bank_ref"]})
+
+    for item in items:
+        ref = item.get("bank_ref", "")
+        for voucher_no in item["voucher_nos"] or [""]:
+            truth_rows.append({"bank_ref": ref, "voucher_no": voucher_no,
+                               "match_type": item["match_type"]})
+
+    bank = pd.DataFrame(bank_rows)
+    truth = pd.DataFrame(truth_rows).sort_values(["bank_ref", "voucher_no"], ignore_index=True)
+    return bank, truth
+
+
+# ============================================================
+# Putting it together
+# ============================================================
+
+def generate_all(seed=SEED, year=YEAR):
+    """Generate every table. Returns a dict from file name to DataFrame."""
+    gl, truth, vouchers = generate_gl(seed, year)
+    rng = np.random.default_rng(seed + 1)
+    bank, bank_truth = build_bank_statement(vouchers, year, make_holidays(year), rng)
+    return {"gl": gl, "ground_truth": truth, "bank": bank, "bank_ground_truth": bank_truth}
+
+
+def write_outputs(tables, out_dir):
+    """Write each table to <out_dir>/<name>.csv."""
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    for name, df in tables.items():
+        df.to_csv(out / f"{name}.csv", index=False, encoding=ENCODING, float_format="%.2f")
+
+
+if __name__ == "__main__":
+    write_outputs(generate_all(), "data/sample")
