@@ -196,3 +196,16 @@ def test_jet08_flags_payments_split_under_limit(config):
     assert flagged_vouchers(result) == {"JV000001", "JV000002", "JV000003"}
     assert set(result["line_no"]) == {2}  # only the bank line
     assert result["reason"].iloc[0].startswith("3 payments to A within 7 days, total 135,000.00")
+
+
+def test_jet09_matches_keywords_in_english_and_chinese(config):
+    gl = make_gl(
+        *voucher("JV000001", 100, description="Reversal of accrual"),
+        *voucher("JV000002", 100, description="暂估入库"),
+        *voucher("JV000003", 100, description="Office supplies"),
+    )
+    reasons = jet.jet09_keywords(gl, config).groupby("voucher_no")["reason"].first()
+
+    assert set(reasons.index) == {"JV000001", "JV000002"}
+    assert reasons["JV000001"] == "Description contains 'reversal'"
+    assert reasons["JV000002"] == "Description contains '暂估'"

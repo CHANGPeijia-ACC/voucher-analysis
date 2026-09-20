@@ -346,3 +346,23 @@ def jet08_split_payments(gl, config):
 
     reasons = pd.Series(reasons, dtype=object)
     return flag_lines(gl.loc[reasons.index], "JET08", reasons)
+
+
+# ============================================================
+# JET09 Description keywords
+# ============================================================
+
+def jet09_keywords(gl, config):
+    """JET09 Descriptions that contain words often used for manual adjustments.
+
+    Matching ignores upper and lower case. When several keywords match, the
+    reason shows the first one in the config list.
+    """
+    keywords = settings(config, "JET09_keywords")["keywords"]
+    text = gl["description"].fillna("")
+
+    reasons = pd.Series("", index=gl.index)
+    for word in keywords:
+        mask = (reasons == "") & text.str.contains(word, case=False, regex=False)
+        reasons[mask] = f"Description contains '{word}'"
+    return flag_whole_vouchers(gl, reasons != "", "JET09", reasons)
