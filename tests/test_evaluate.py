@@ -1,6 +1,18 @@
-import pandas as pd
+from pathlib import Path
 
+import pandas as pd
+import pytest
+
+from gl_builder import make_gl, voucher
 from voucher_analysis import evaluate as ev, jet
+from voucher_analysis.loaders import load_config
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+
+@pytest.fixture
+def config():
+    return load_config(REPO_ROOT / "config.yaml")
 
 
 def flags(*pairs):
@@ -56,3 +68,18 @@ def test_evaluate_reports_na_for_a_test_without_ground_truth():
 def test_evaluate_lists_every_test_even_with_no_flags():
     table = ev.evaluate(flags(), truth(("JV000001", "unbalanced")))
     assert len(table) == len(ev.TEST_ANOMALY) + 1
+
+
+def test_compare_outlier_scales_scores_both_variants(config):
+    rows = []
+    for i in range(40):                      # normal lines, 1,000 to 1,195
+        rows += voucher(f"JV{i + 1:06d}", 1000 + i * 5)
+    rows += voucher("JV000041", 50000)       # the injected extreme amount
+    gl = make_gl(*rows)
+    ground_truth = truth(("JV000041", "extreme_amount"))
+
+    table = ev.compare_outlier_scales(gl, ground_truth, config).set_index("test_id")
+
+    assert list(table.index) == ["JET10 raw scale", "JET10 log scale"]
+    assert table.loc["JET10 log scale", "recall"] == 1.0
+    assert config["jet"]["JET10_outliers"]["log_scale"] is True   # config not changed

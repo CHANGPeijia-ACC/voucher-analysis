@@ -9,6 +9,8 @@ recall = caught / everything injected. Low recall means real anomalies are
 missed. Loosening a threshold usually raises recall and lowers precision.
 """
 
+import copy
+
 import pandas as pd
 
 from voucher_analysis import jet
@@ -78,4 +80,23 @@ def evaluate(flags, ground_truth):
 
     rows.append(score("overall", "any", set(flags["voucher_no"]),
                       set(ground_truth["voucher_no"])))
+    return pd.DataFrame(rows, columns=EVALUATION_COLUMNS)
+
+
+def compare_outlier_scales(gl, ground_truth, config):
+    """Score JET10 twice, on the raw amounts and on log(amount).
+
+    Shows what the log scale is worth. Accounting amounts are right-skewed:
+    many small lines and a few large ones. On the raw scale a large but
+    normal line is often far enough from the median to be flagged.
+    """
+    injected = injected_vouchers(ground_truth, TEST_ANOMALY["JET10"])
+    rows = []
+    for log_scale in [False, True]:
+        variant = copy.deepcopy(config)
+        variant["jet"]["JET10_outliers"]["log_scale"] = log_scale
+        flags = jet.jet10_outliers(gl, variant)
+        row = score("JET10 log scale" if log_scale else "JET10 raw scale",
+                    TEST_ANOMALY["JET10"], set(flags["voucher_no"]), injected)
+        rows.append(row)
     return pd.DataFrame(rows, columns=EVALUATION_COLUMNS)
