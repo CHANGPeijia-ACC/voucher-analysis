@@ -73,3 +73,25 @@ def test_jet01_catches_one_cent(config):
         {"voucher_no": "JV000001", "line_no": 2, "debit": None, "credit": 100.00},
     )
     assert flagged_vouchers(jet.jet01_unbalanced(gl, config)) == {"JV000001"}
+
+
+def test_jet02_flags_same_invoice_within_window(config):
+    gl = make_gl(
+        *voucher("JV000001", 5000, posting_date="2025-03-03"),
+        *voucher("JV000002", 5000, posting_date="2025-03-06"),
+        *voucher("JV000003", 7000, posting_date="2025-03-03"),
+        *voucher("JV000004", 7000, posting_date="2025-03-17"),
+    )
+    result = jet.jet02_duplicates(gl, config)
+
+    assert flagged_vouchers(result) == {"JV000001", "JV000002"}
+    assert "3 days apart" in result["reason"].iloc[0]
+
+
+def test_jet02_ignores_reversal_on_opposite_side(config):
+    gl = make_gl(
+        *voucher("JV000001", 5000, debit_account="6605", credit_account="2241"),
+        *voucher("JV000002", 5000, debit_account="2241", credit_account="6605",
+                 posting_date="2025-03-04"),
+    )
+    assert jet.jet02_duplicates(gl, config).empty

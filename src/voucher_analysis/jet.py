@@ -122,3 +122,39 @@ def jet01_unbalanced(gl, config):
         index=unbalanced.index, dtype=object)
     mask = gl["voucher_no"].isin(unbalanced.index)
     return flag_whole_vouchers(gl, mask, "JET01", gl["voucher_no"].map(texts))
+
+
+# ============================================================
+# JET02 Possible duplicates
+# ============================================================
+
+def jet02_duplicates(gl, config):
+    """JET02 Possible duplicates: same account, supplier, side and amount in
+    different vouchers posted within N days of each other.
+
+    A duplicated invoice can lead to paying a supplier twice. The side
+    (debit or credit) is part of the match, so an accrual and its reversal
+    are not reported as duplicates.
+    """
+    window = settings(config, "JET02_duplicates")["window_days"]
+    lines = gl[gl["supplier"].notna() & gl["posting_date"].notna()].copy()
+    lines["side"] = np.where(lines["debit"].notna(), "debit", "credit")
+    lines["cents"] = (line_amount(lines) * 100).round()  # compare whole cents, not floats
+    keys = ["account_code", "supplier", "side", "cents"]
+    lines = lines[lines["cents"].notna() & lines.duplicated(keys, keep=False)]
+
+    reasons = {}
+    for _, group in lines.sort_values("posting_date").groupby(keys):
+        rows = list(group.itertuples())
+        for i, first in enumerate(rows):
+            for second in rows[i + 1:]:
+                days = (second.posting_date - first.posting_date).days
+                if days > window:
+                    break
+                if first.voucher_no != second.voucher_no:
+                    text = "Same account, supplier and amount as {}, {} days apart"
+                    reasons.setdefault(first.Index, text.format(second.voucher_no, days))
+                    reasons.setdefault(second.Index, text.format(first.voucher_no, days))
+
+    reasons = pd.Series(reasons, dtype=object)
+    return flag_lines(gl.loc[reasons.index], "JET02", reasons)
