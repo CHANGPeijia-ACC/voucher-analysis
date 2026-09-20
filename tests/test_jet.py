@@ -119,3 +119,27 @@ def test_jet04_uses_working_hours_boundaries(config):
     result = jet.jet04_outside_hours(make_gl(*rows), config)
 
     assert flagged_vouchers(result) == {"JV000001", "JV000004", "JV000005"}
+
+
+def test_jet05_flags_entry_after_close_day(config):
+    gl = make_gl(
+        *voucher("JV000001", 100, posting_date="2025-03-10", entry_time="2025-04-05 10:00:00"),
+        *voucher("JV000002", 100, posting_date="2025-03-10", entry_time="2025-04-06 10:00:00"),
+    )
+    result = jet.jet05_after_close(gl, config)
+
+    assert flagged_vouchers(result) == {"JV000002"}
+    assert result["reason"].iloc[0] == (
+        "Entered 2025-04-06, after close deadline 2025-04-05 for period 2025-03")
+
+
+def test_month_end_summary_shares(config):
+    gl = make_gl(
+        *voucher("JV000001", 100, posting_date="2025-03-10"),
+        *voucher("JV000002", 300, posting_date="2025-03-30"),
+    )
+    row = jet.month_end_summary(gl, config).iloc[0]
+
+    assert row["period"] == "2025-03"
+    assert row["voucher_share"] == 0.5
+    assert row["debit_share"] == 0.75

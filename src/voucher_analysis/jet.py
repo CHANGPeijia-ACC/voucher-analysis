@@ -214,3 +214,58 @@ def jet04_outside_hours(gl, config):
     reasons = ("Entered at " + entry.dt.strftime("%H:%M")
                + f", outside {s['work_start']}-{s['work_end']}")
     return flag_whole_vouchers(gl, mask, "JET04", reasons)
+
+
+# ============================================================
+# JET05 Postings after period close
+# ============================================================
+
+def close_deadlines(posting_dates, close_day):
+    """Last allowed entry date for each posting: its month end plus close_day days."""
+    return posting_dates + pd.offsets.MonthEnd(0) + pd.Timedelta(days=close_day)
+
+
+def jet05_after_close(gl, config):
+    """JET05 Entries made after the books for their period were closed.
+
+    Late entries change figures that may already have been reported, and
+    are a common way to adjust results after the fact.
+    """
+    close_day = settings(config, "JET05_period_close")["close_day"]
+    deadline = close_deadlines(gl["posting_date"], close_day)
+    entry_date = gl["entry_time"].dt.normalize()
+
+    mask = entry_date > deadline
+    reasons = ("Entered " + entry_date.dt.strftime("%Y-%m-%d")
+               + ", after close deadline " + deadline.dt.strftime("%Y-%m-%d")
+               + " for period " + gl["posting_date"].dt.strftime("%Y-%m"))
+    return flag_whole_vouchers(gl, mask, "JET05", reasons)
+
+
+def month_end_summary(gl, config):
+    """JET05 companion table: share of vouchers and debit amount posted in the
+    last N days of each month.
+
+    Month-end work is normal, so single entries are not flagged. A share that
+    jumps in one month can signal pressure to meet targets.
+    """
+    days = settings(config, "JET05_period_close")["month_end_days"]
+    lines = gl[gl["posting_date"].notna()]
+    dates = lines["posting_date"]
+    frame = pd.DataFrame({
+        "period": dates.dt.strftime("%Y-%m"),
+        "voucher_no": lines["voucher_no"],
+        "debit": lines["debit"].fillna(0),
+        "month_end": dates.dt.day > dates.dt.days_in_month - days,
+    })
+
+    table = frame.groupby("period").agg(
+        vouchers=("voucher_no", "nunique"), debit=("debit", "sum"))
+    month_end = frame[frame["month_end"]].groupby("period").agg(
+        month_end_vouchers=("voucher_no", "nunique"), month_end_debit=("debit", "sum"))
+    table = table.join(month_end).fillna(0)
+    table["voucher_share"] = (table["month_end_vouchers"] / table["vouchers"]).round(3)
+    table["debit_share"] = (table["month_end_debit"] / table["debit"]).round(3)
+    columns = ["vouchers", "month_end_vouchers", "voucher_share",
+               "debit", "month_end_debit", "debit_share"]
+    return table[columns].reset_index()
