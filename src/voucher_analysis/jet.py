@@ -61,3 +61,41 @@ def flag_whole_vouchers(gl, mask, test_id, reasons):
     first_reason = reasons[mask].groupby(gl.loc[mask, "voucher_no"]).first()
     lines = gl[gl["voucher_no"].isin(first_reason.index)]
     return flag_lines(lines, test_id, lines["voucher_no"].map(first_reason))
+
+
+# ============================================================
+# JET00 Input validation
+# ============================================================
+
+REQUIRED_FIELDS = ["voucher_no", "line_no", "posting_date", "entry_time",
+                   "account_code", "prepared_by", "approved_by"]
+
+
+def jet00_validation(gl, config):
+    """JET00 Input validation: data problems that make the other tests unreliable.
+
+    Checks for missing required fields, a wrong voucher number format, lines
+    with no amount or with both debit and credit, negative amounts, and the
+    same voucher_no and line_no used twice. One line can have several problems.
+    """
+    pattern = settings(config, "JET00_validation")["voucher_no_pattern"]
+    has_debit = gl["debit"].notna()
+    has_credit = gl["credit"].notna()
+    good_format = gl["voucher_no"].fillna("").str.fullmatch(pattern)
+
+    checks = [(gl[field].isna(), f"missing {field}") for field in REQUIRED_FIELDS]
+    checks += [
+        (gl["voucher_no"].notna() & ~good_format, "wrong voucher number format"),
+        (~has_debit & ~has_credit, "no debit or credit amount"),
+        (has_debit & has_credit, "both debit and credit on one line"),
+        ((gl["debit"] < 0) | (gl["credit"] < 0), "negative amount"),
+        (gl["voucher_no"].notna() & gl.duplicated(["voucher_no", "line_no"], keep=False),
+         "voucher_no and line_no used twice"),
+    ]
+
+    reasons = pd.Series("", index=gl.index)
+    for mask, text in checks:
+        mask = mask.fillna(False).astype(bool)
+        reasons[mask] = reasons[mask] + "; " + text
+    flagged = reasons != ""
+    return flag_lines(gl[flagged], "JET00", reasons[flagged].str.removeprefix("; "))

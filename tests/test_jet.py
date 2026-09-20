@@ -27,3 +27,28 @@ def test_flag_whole_vouchers_flags_every_line(config):
     assert list(result.columns) == jet.OUTPUT_COLUMNS
     assert list(result["line_no"]) == [1, 2]
     assert set(result["reason"]) == {"6601"}
+
+
+def test_jet00_accepts_clean_data(config):
+    gl = make_gl(*voucher("JV000001", 100))
+    assert jet.jet00_validation(gl, config).empty
+
+
+def test_jet00_reports_each_problem(config):
+    gl = make_gl(
+        {"voucher_no": "X12"},
+        {"voucher_no": "JV000002", "prepared_by": None},
+        {"voucher_no": "JV000003", "debit": 50, "credit": 50},
+        {"voucher_no": "JV000004", "debit": None, "credit": None},
+        {"voucher_no": "JV000005", "debit": -10},
+        {"voucher_no": "JV000006"},
+        {"voucher_no": "JV000006"},
+    )
+    reasons = jet.jet00_validation(gl, config).groupby("voucher_no")["reason"].first()
+
+    assert reasons["X12"] == "wrong voucher number format"
+    assert reasons["JV000002"] == "missing prepared_by"
+    assert reasons["JV000003"] == "both debit and credit on one line"
+    assert reasons["JV000004"] == "no debit or credit amount"
+    assert reasons["JV000005"] == "negative amount"
+    assert reasons["JV000006"] == "voucher_no and line_no used twice"
