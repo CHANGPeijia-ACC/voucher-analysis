@@ -306,3 +306,43 @@ def jet07_same_preparer_approver(gl, config):
     mask = gl["prepared_by"].notna() & (gl["prepared_by"] == gl["approved_by"])
     reasons = "Prepared and approved by " + gl["prepared_by"].fillna("")
     return flag_whole_vouchers(gl, mask, "JET07", reasons)
+
+
+# ============================================================
+# JET08 Split payments
+# ============================================================
+
+def jet08_split_payments(gl, config):
+    """JET08 Split payments: several payments to one supplier within N days,
+    each below the approval limit but together above it.
+
+    Splitting one payment into smaller ones avoids the approval that the
+    full amount would need. Payments are credit lines on the bank account.
+    A window starts at each payment and covers the next N days.
+    """
+    s = settings(config, "JET08_split_payments")
+    limit = s["approval_limit"]
+    window = s["window_days"]
+
+    payments = gl[(gl["account_code"] == str(s["bank_account"]))
+                  & (gl["credit"] > 0) & (gl["credit"] < limit)
+                  & gl["supplier"].notna() & gl["posting_date"].notna()]
+
+    reasons = {}
+    for supplier, group in payments.sort_values("posting_date").groupby("supplier"):
+        dates = group["posting_date"].tolist()
+        amounts = group["credit"].tolist()
+        for start in range(len(group)):
+            end = start
+            while end + 1 < len(group) and (dates[end + 1] - dates[start]).days <= window:
+                end += 1
+            count = end - start + 1
+            total = sum(amounts[start:end + 1])
+            if count >= s["min_payments"] and total > limit:
+                text = (f"{count} payments to {supplier} within {window} days, "
+                        f"total {money_text(total)}, each below {money_text(limit)}")
+                for index in group.index[start:end + 1]:
+                    reasons.setdefault(index, text)
+
+    reasons = pd.Series(reasons, dtype=object)
+    return flag_lines(gl.loc[reasons.index], "JET08", reasons)

@@ -168,3 +168,31 @@ def test_jet07_flags_same_preparer_and_approver(config):
 
     assert flagged_vouchers(result) == {"JV000002"}
     assert result["reason"].iloc[0] == "Prepared and approved by prep01"
+
+
+def split_payment_rows(voucher_no, amount, supplier, day):
+    return voucher(voucher_no, amount, debit_account="2202", credit_account="1002",
+                   supplier=supplier, posting_date=day)
+
+
+def test_jet08_flags_payments_split_under_limit(config):
+    gl = make_gl(
+        # A: three payments under 50,000 in three days, total 135,000
+        *split_payment_rows("JV000001", 45000, "A", "2025-03-03"),
+        *split_payment_rows("JV000002", 45000, "A", "2025-03-04"),
+        *split_payment_rows("JV000003", 45000, "A", "2025-03-05"),
+        # B: two small payments, total below the limit
+        *split_payment_rows("JV000004", 20000, "B", "2025-03-03"),
+        *split_payment_rows("JV000005", 20000, "B", "2025-03-04"),
+        # C: two payments too far apart
+        *split_payment_rows("JV000006", 45000, "C", "2025-03-03"),
+        *split_payment_rows("JV000007", 45000, "C", "2025-03-20"),
+        # D: one payment above the limit was approved; the small one alone is fine
+        *split_payment_rows("JV000008", 60000, "D", "2025-03-03"),
+        *split_payment_rows("JV000009", 10000, "D", "2025-03-04"),
+    )
+    result = jet.jet08_split_payments(gl, config)
+
+    assert flagged_vouchers(result) == {"JV000001", "JV000002", "JV000003"}
+    assert set(result["line_no"]) == {2}  # only the bank line
+    assert result["reason"].iloc[0].startswith("3 payments to A within 7 days, total 135,000.00")
