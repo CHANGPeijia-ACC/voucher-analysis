@@ -422,3 +422,31 @@ def jet10_outliers(gl, config):
 
     reasons = pd.Series(reasons, dtype=object)
     return flag_lines(gl.loc[reasons.index], "JET10", reasons)
+
+
+# ============================================================
+# Run all tests
+# ============================================================
+
+ALL_TESTS = [
+    jet00_validation,
+    jet01_unbalanced,
+    jet02_duplicates,
+    jet03_weekend_holiday,
+    jet04_outside_hours,
+    jet05_after_close,
+    jet06_round_amounts,
+    jet07_same_preparer_approver,
+    jet08_split_payments,
+    jet09_keywords,
+    jet10_outliers,
+]
+
+
+def run_all(gl, config):
+    """Run every test and stack the flagged lines into one table."""
+    results = [test(gl, config) for test in ALL_TESTS]
+    results = [result for result in results if not result.empty]
+    if not results:
+        return pd.DataFrame(columns=OUTPUT_COLUMNS)
+    return pd.concat(results, ignore_index=True)

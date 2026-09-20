@@ -252,3 +252,23 @@ def test_robust_z_is_not_pulled_by_the_outlier():
     values = pd.Series([10, 11, 12, 13, 14, 1000])
     scores = jet.robust_z_scores(values)
     assert scores.iloc[-1] > 100
+
+
+def test_run_all_stacks_results(config):
+    gl = make_gl(
+        *voucher("JV000001", 100),
+        {"voucher_no": "JV000002", "line_no": 1, "debit": 200.00},
+        {"voucher_no": "JV000002", "line_no": 2, "debit": None, "credit": 190.00},
+        *voucher("JV000003", 300, prepared_by="prep02", approved_by="prep02"),
+    )
+    result = jet.run_all(gl, config)
+
+    assert list(result.columns) == jet.OUTPUT_COLUMNS
+    assert set(result["test_id"]) == {"JET01", "JET07"}
+
+
+def test_run_all_with_no_flags(config):
+    gl = make_gl(*voucher("JV000001", 100))
+    result = jet.run_all(gl, config)
+    assert result.empty
+    assert list(result.columns) == jet.OUTPUT_COLUMNS
