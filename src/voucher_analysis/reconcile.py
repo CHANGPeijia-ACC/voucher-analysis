@@ -107,3 +107,44 @@ def match_one_to_one(book, bank, window_days):
         used_vouchers.add(item.voucher_no)
         matches.append(build_match("one_to_one", [best], [item]))
     return matches, used_refs, used_vouchers
+
+
+# ============================================================
+# Pass 2: one to many
+# ============================================================
+
+def match_one_to_many(book, bank, window_days, max_group_size, max_candidates=12):
+    """Match one bank line to several vouchers for the same counterparty.
+
+    A bank transfer can settle several invoices at once. The function tries
+    combinations of two up to max_group_size vouchers whose amounts add up
+    to the bank amount exactly. Only the max_candidates vouchers closest in
+    date are considered, to keep the number of combinations small.
+    """
+    matches = []
+    used_refs = set()
+    used_vouchers = set()
+
+    for bank_row in bank.sort_values(["bank_date", "bank_ref"]).itertuples():
+        candidates = [item for item in book.itertuples()
+                      if item.voucher_no not in used_vouchers
+                      and item.counterparty == bank_row.counterparty
+                      and days_apart(bank_row, item) <= window_days]
+        candidates.sort(key=lambda item: (days_apart(bank_row, item), item.voucher_no))
+        candidates = candidates[:max_candidates]
+
+        group = find_group(bank_row.cents, candidates, max_group_size)
+        if group:
+            used_refs.add(bank_row.bank_ref)
+            used_vouchers.update(item.voucher_no for item in group)
+            matches.append(build_match("one_to_many", [bank_row], list(group)))
+    return matches, used_refs, used_vouchers
+
+
+def find_group(target_cents, candidates, max_group_size):
+    """The first combination of 2 or more vouchers that adds up to the target."""
+    for size in range(2, max_group_size + 1):
+        for group in combinations(candidates, size):
+            if sum(item.cents for item in group) == target_cents:
+                return group
+    return None

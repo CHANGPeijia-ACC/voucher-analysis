@@ -85,3 +85,42 @@ def test_pass1_never_uses_a_bank_line_twice(config):
 
     assert len(matches) == 1
     assert used_vouchers == {"JV000001"}  # the older voucher is matched first
+
+
+def test_pass2_matches_one_transfer_to_three_invoices(config):
+    book = rec.book_bank_items(make_gl(
+        *payment("JV000001", 100, "2025-03-03"),
+        *payment("JV000002", 200, "2025-03-03"),
+        *payment("JV000003", 300, "2025-03-04"),
+    ), config)
+    bank = rec.bank_items(make_bank(
+        {"bank_date": "2025-03-04", "amount": -600, "counterparty": "Supplier A"}))
+    matches, used_refs, used_vouchers = rec.match_one_to_many(book, bank, 3, 5)
+
+    assert len(matches) == 1
+    assert matches[0]["match_type"] == "one_to_many"
+    assert used_vouchers == {"JV000001", "JV000002", "JV000003"}
+    assert matches[0]["difference"] == 0.0
+
+
+def test_pass2_needs_the_same_counterparty(config):
+    book = rec.book_bank_items(make_gl(
+        *payment("JV000001", 100, "2025-03-03", supplier="Supplier A"),
+        *payment("JV000002", 500, "2025-03-03", supplier="Supplier B"),
+    ), config)
+    bank = rec.bank_items(make_bank(
+        {"bank_date": "2025-03-03", "amount": -600, "counterparty": "Supplier A"}))
+    matches, _, _ = rec.match_one_to_many(book, bank, 3, 5)
+    assert matches == []
+
+
+def test_pass2_respects_the_group_size_limit(config):
+    rows = []
+    for i in range(4):
+        rows += payment(f"JV00000{i + 1}", 100, "2025-03-03")
+    book = rec.book_bank_items(make_gl(*rows), config)
+    bank = rec.bank_items(make_bank(
+        {"bank_date": "2025-03-03", "amount": -400, "counterparty": "Supplier A"}))
+
+    assert rec.match_one_to_many(book, bank, 3, 3)[0] == []
+    assert len(rec.match_one_to_many(book, bank, 3, 4)[0]) == 1
