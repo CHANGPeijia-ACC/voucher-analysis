@@ -124,3 +124,39 @@ def test_pass2_respects_the_group_size_limit(config):
 
     assert rec.match_one_to_many(book, bank, 3, 3)[0] == []
     assert len(rec.match_one_to_many(book, bank, 3, 4)[0]) == 1
+
+
+def test_amount_difference_is_paired_and_reported(config):
+    book = rec.book_bank_items(make_gl(*payment("JV000001", 10000, "2025-03-03")), config)
+    bank = rec.bank_items(make_bank(
+        {"bank_date": "2025-03-04", "amount": -10025, "counterparty": "Supplier A"}))
+    matches, used_refs, used_vouchers = rec.match_amount_differences(book, bank, 3, 0.02)
+
+    assert len(matches) == 1
+    assert matches[0]["match_type"] == "amount_difference"
+    assert matches[0]["difference"] == -25.00
+    assert used_refs and used_vouchers
+
+
+def test_amount_difference_ignores_amounts_that_are_too_far_apart(config):
+    book = rec.book_bank_items(make_gl(*payment("JV000001", 10000, "2025-03-03")), config)
+    bank = rec.bank_items(make_bank(
+        {"bank_date": "2025-03-04", "amount": -5000, "counterparty": "Supplier A"}))
+    matches, _, _ = rec.match_amount_differences(book, bank, 3, 0.02)
+    assert matches == []
+
+
+def test_classify_labels_the_remaining_items(config):
+    book = rec.book_bank_items(make_gl(
+        *payment("JV000001", 1000, "2025-12-30"),
+        *receipt("JV000002", 2000, "2025-12-31"),
+    ), config)
+    bank = rec.bank_items(make_bank(
+        {"bank_date": "2025-12-31", "amount": -150, "counterparty": "Bank charge"}))
+    unmatched = classify = rec.classify_unmatched(book, bank)
+
+    assert list(classify.columns) == rec.UNMATCHED_COLUMNS
+    types = dict(zip(unmatched["voucher_no"], unmatched["item_type"]))
+    assert types["JV000001"] == "outstanding_payment"
+    assert types["JV000002"] == "deposit_in_transit"
+    assert unmatched.loc[unmatched["bank_ref"] == "BR000001", "item_type"].iloc[0] == "bank_only"

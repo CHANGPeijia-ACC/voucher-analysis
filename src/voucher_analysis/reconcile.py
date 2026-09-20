@@ -148,3 +148,60 @@ def find_group(target_cents, candidates, max_group_size):
             if sum(item.cents for item in group) == target_cents:
                 return group
     return None
+
+
+# ============================================================
+# Pass 3: classify what is left
+# ============================================================
+
+def match_amount_differences(book, bank, window_days, max_relative_difference):
+    """Pair items that look like the same payment recorded with different amounts.
+
+    Same counterparty, date within the window, and a difference small
+    against the book amount, for example a transfer fee the bank deducted.
+    These are not timing differences: somebody has to find out which side is
+    right, so they are reported as matches with a difference.
+    """
+    matches = []
+    used_refs = set()
+    used_vouchers = set()
+
+    for bank_row in bank.sort_values(["bank_date", "bank_ref"]).itertuples():
+        candidates = [item for item in book.itertuples()
+                      if item.voucher_no not in used_vouchers
+                      and item.counterparty != ""
+                      and item.counterparty == bank_row.counterparty
+                      and days_apart(bank_row, item) <= window_days
+                      and abs(bank_row.cents - item.cents)
+                      <= abs(item.cents) * max_relative_difference]
+        if not candidates:
+            continue
+        best = min(candidates, key=lambda item: (abs(bank_row.cents - item.cents),
+                                                 item.voucher_no))
+        used_refs.add(bank_row.bank_ref)
+        used_vouchers.add(best.voucher_no)
+        matches.append(build_match("amount_difference", [bank_row], [best]))
+    return matches, used_refs, used_vouchers
+
+
+def classify_unmatched(book, bank):
+    """Label the items that no pass could match.
+
+    A book receipt the bank has not credited yet is a deposit in transit
+    (在途存款). A book payment the bank has not taken yet is an outstanding
+    payment (未兑付付款). A bank line with nothing in the books is bank only
+    (银行单边), for example a bank charge or a direct debit.
+    """
+    rows = []
+    for item in book.itertuples():
+        rows.append({
+            "item_type": "deposit_in_transit" if item.amount > 0 else "outstanding_payment",
+            "bank_ref": "", "voucher_no": item.voucher_no, "date": item.posting_date,
+            "amount": item.amount, "counterparty": item.counterparty,
+        })
+    for row in bank.itertuples():
+        rows.append({
+            "item_type": "bank_only", "bank_ref": row.bank_ref, "voucher_no": "",
+            "date": row.bank_date, "amount": row.amount, "counterparty": row.counterparty,
+        })
+    return pd.DataFrame(rows, columns=UNMATCHED_COLUMNS)
