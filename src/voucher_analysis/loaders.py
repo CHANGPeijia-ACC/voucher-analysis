@@ -60,7 +60,11 @@ def read_bank(path):
     """Read the bank statement CSV into a DataFrame with proper types."""
     df = pd.read_csv(path, encoding=ENCODING, dtype=str, keep_default_na=False)
     check_columns(df, BANK_COLUMNS, "Bank statement")
+    return prepare_bank(df)
 
+
+def prepare_bank(df):
+    """Convert a bank statement table of text values into proper types."""
     df = df.replace("", pd.NA)
     df["bank_date"] = pd.to_datetime(df["bank_date"], errors="coerce")
     df["amount"] = pd.to_numeric(df["amount"], errors="coerce")

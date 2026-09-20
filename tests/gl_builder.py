@@ -1,8 +1,8 @@
-"""Build small hand-made general ledgers for tests."""
+"""Build small hand-made general ledgers and bank statements for tests."""
 
 import pandas as pd
 
-from voucher_analysis.loaders import GL_COLUMNS, prepare_gl
+from voucher_analysis.loaders import BANK_COLUMNS, GL_COLUMNS, prepare_bank, prepare_gl
 
 DEFAULT_LINE = {
     "voucher_no": "JV000001",
@@ -43,3 +43,21 @@ def voucher(voucher_no, amount, debit_account="6601", credit_account="1002", **f
         {"voucher_no": voucher_no, "line_no": 2, "account_code": credit_account,
          "debit": None, "credit": amount, **fields},
     ]
+
+
+DEFAULT_BANK_LINE = {
+    "bank_date": "2025-03-03",
+    "amount": -100.00,
+    "counterparty": "Supplier A",
+    "bank_ref": None,                      # numbered BR000001, BR000002, ... when left out
+}
+
+
+def make_bank(*rows):
+    """Build a bank statement from partial rows, parsed like a CSV file."""
+    full_rows = []
+    for number, row in enumerate(rows, start=1):
+        values = {**DEFAULT_BANK_LINE, "bank_ref": f"BR{number:06d}", **row}
+        full_rows.append({col: "" if values[col] is None else str(values[col])
+                          for col in BANK_COLUMNS})
+    return prepare_bank(pd.DataFrame(full_rows, columns=BANK_COLUMNS))
