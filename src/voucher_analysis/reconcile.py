@@ -76,3 +76,34 @@ def build_match(match_type, bank_rows, book_rows):
         "book_amount": book_amount,
         "difference": round(bank_amount - book_amount, 2),
     }
+
+
+# ============================================================
+# Pass 1: one to one
+# ============================================================
+
+def match_one_to_one(book, bank, window_days):
+    """Match a voucher to a bank line with the same amount within the date window.
+
+    Vouchers are handled oldest first. When several bank lines have the same
+    amount, the one with the closest date is taken. Nothing is matched twice.
+    Returns the matches, the bank refs used and the voucher numbers used.
+    """
+    by_amount = {}
+    for row in bank.itertuples():
+        by_amount.setdefault(row.cents, []).append(row)
+
+    matches = []
+    used_refs = set()
+    used_vouchers = set()
+    for item in book.sort_values(["posting_date", "voucher_no"]).itertuples():
+        candidates = [row for row in by_amount.get(item.cents, [])
+                      if row.bank_ref not in used_refs
+                      and days_apart(row, item) <= window_days]
+        if not candidates:
+            continue
+        best = min(candidates, key=lambda row: (days_apart(row, item), row.bank_ref))
+        used_refs.add(best.bank_ref)
+        used_vouchers.add(item.voucher_no)
+        matches.append(build_match("one_to_one", [best], [item]))
+    return matches, used_refs, used_vouchers

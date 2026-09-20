@@ -44,3 +44,44 @@ def test_book_items_are_one_row_per_voucher_with_net_amount(config):
 def test_book_items_skip_vouchers_that_do_not_touch_the_bank(config):
     gl = make_gl(*voucher("JV000001", 500, debit_account="6601", credit_account="2202"))
     assert rec.book_bank_items(gl, config).empty
+
+
+def test_pass1_matches_same_amount_within_window(config):
+    book = rec.book_bank_items(make_gl(*payment("JV000001", 1000, "2025-03-03")), config)
+    bank = rec.bank_items(make_bank({"bank_date": "2025-03-05", "amount": -1000}))
+    matches, used_refs, used_vouchers = rec.match_one_to_one(book, bank, 3)
+
+    assert len(matches) == 1
+    assert matches[0]["match_type"] == "one_to_one"
+    assert matches[0]["difference"] == 0.0
+    assert used_refs == {"BR000001"}
+    assert used_vouchers == {"JV000001"}
+
+
+def test_pass1_ignores_dates_outside_the_window(config):
+    book = rec.book_bank_items(make_gl(*payment("JV000001", 1000, "2025-03-03")), config)
+    bank = rec.bank_items(make_bank({"bank_date": "2025-03-07", "amount": -1000}))
+    matches, _, _ = rec.match_one_to_one(book, bank, 3)
+    assert matches == []
+
+
+def test_pass1_takes_the_closest_date(config):
+    book = rec.book_bank_items(make_gl(*payment("JV000001", 1000, "2025-03-03")), config)
+    bank = rec.bank_items(make_bank(
+        {"bank_date": "2025-03-06", "amount": -1000, "bank_ref": "BR000001"},
+        {"bank_date": "2025-03-04", "amount": -1000, "bank_ref": "BR000002"},
+    ))
+    matches, _, _ = rec.match_one_to_one(book, bank, 3)
+    assert matches[0]["bank_refs"] == "BR000002"
+
+
+def test_pass1_never_uses_a_bank_line_twice(config):
+    book = rec.book_bank_items(make_gl(
+        *payment("JV000001", 1000, "2025-03-03"),
+        *payment("JV000002", 1000, "2025-03-04"),
+    ), config)
+    bank = rec.bank_items(make_bank({"bank_date": "2025-03-04", "amount": -1000}))
+    matches, _, used_vouchers = rec.match_one_to_one(book, bank, 3)
+
+    assert len(matches) == 1
+    assert used_vouchers == {"JV000001"}  # the older voucher is matched first
