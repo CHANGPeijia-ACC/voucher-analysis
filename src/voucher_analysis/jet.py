@@ -158,3 +158,31 @@ def jet02_duplicates(gl, config):
 
     reasons = pd.Series(reasons, dtype=object)
     return flag_lines(gl.loc[reasons.index], "JET02", reasons)
+
+
+# ============================================================
+# JET03 Weekend and public holiday postings
+# ============================================================
+
+def jet03_weekend_holiday(gl, config):
+    """JET03 Postings dated on a weekend or a public holiday.
+
+    Few staff work on these days, so entries made then get less review.
+    The holidays package does not know weekend days that are made working
+    days to make up for a holiday, so postings on those days are flagged too.
+    """
+    country = settings(config, "JET03_weekend_holiday")["country"]
+    dates = gl["posting_date"]
+    years = sorted(int(year) for year in dates.dt.year.dropna().unique())
+    public_holidays = holidays.country_holidays(country, years=years, language="en_US")
+
+    holiday_name = dates.map(lambda d: public_holidays.get(d.date()) if pd.notna(d) else None)
+    is_holiday = holiday_name.notna()
+    is_weekend = dates.dt.dayofweek >= 5
+
+    reasons = pd.Series("", index=gl.index)
+    day_text = dates.dt.strftime("%Y-%m-%d")
+    reasons[is_weekend] = "Posted on " + dates[is_weekend].dt.day_name() + " " + day_text[is_weekend]
+    reasons[is_holiday] = ("Posted on public holiday " + day_text[is_holiday]
+                           + " (" + holiday_name[is_holiday] + ")")
+    return flag_whole_vouchers(gl, is_weekend | is_holiday, "JET03", reasons)

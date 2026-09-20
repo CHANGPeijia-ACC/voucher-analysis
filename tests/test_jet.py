@@ -95,3 +95,16 @@ def test_jet02_ignores_reversal_on_opposite_side(config):
                  posting_date="2025-03-04"),
     )
     assert jet.jet02_duplicates(gl, config).empty
+
+
+def test_jet03_flags_weekend_and_holiday(config):
+    gl = make_gl(
+        *voucher("JV000001", 100, posting_date="2025-03-03"),
+        *voucher("JV000002", 100, posting_date="2025-03-08"),
+        *voucher("JV000003", 100, posting_date="2025-10-01"),
+    )
+    reasons = jet.jet03_weekend_holiday(gl, config).groupby("voucher_no")["reason"].first()
+
+    assert set(reasons.index) == {"JV000002", "JV000003"}
+    assert reasons["JV000002"] == "Posted on Saturday 2025-03-08"
+    assert reasons["JV000003"].startswith("Posted on public holiday 2025-10-01")
