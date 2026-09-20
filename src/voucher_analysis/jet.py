@@ -269,3 +269,25 @@ def month_end_summary(gl, config):
     columns = ["vouchers", "month_end_vouchers", "voucher_share",
                "debit", "month_end_debit", "debit_share"]
     return table[columns].reset_index()
+
+
+# ============================================================
+# JET06 Round amounts
+# ============================================================
+
+def jet06_round_amounts(gl, config):
+    """JET06 Round amounts at or above a floor, such as 30,000.00.
+
+    Real invoices usually have odd amounts. Estimates and made-up entries
+    are more often round numbers.
+    """
+    s = settings(config, "JET06_round_amounts")
+    amount = line_amount(gl)
+    cents = (amount * 100).round()  # whole cents avoid float remainders
+
+    reasons = pd.Series("", index=gl.index)
+    for multiple in sorted(s["multiples"]):  # a larger multiple overwrites a smaller one
+        mask = (amount >= s["min_amount"]) & (cents % (multiple * 100) == 0)
+        reasons[mask] = f"Round amount, multiple of {multiple:,}"
+    flagged = reasons != ""
+    return flag_lines(gl[flagged], "JET06", reasons[flagged])

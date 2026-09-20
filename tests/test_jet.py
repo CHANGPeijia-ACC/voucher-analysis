@@ -143,3 +143,17 @@ def test_month_end_summary_shares(config):
     assert row["period"] == "2025-03"
     assert row["voucher_share"] == 0.5
     assert row["debit_share"] == 0.75
+
+
+def test_jet06_flags_round_amounts_above_floor(config):
+    gl = make_gl(
+        *voucher("JV000001", 60000),
+        *voucher("JV000002", 12000),
+        *voucher("JV000003", 9000),
+        *voucher("JV000004", 10000.50),
+    )
+    reasons = jet.jet06_round_amounts(gl, config).groupby("voucher_no")["reason"].first()
+
+    assert set(reasons.index) == {"JV000001", "JV000002"}
+    assert reasons["JV000001"] == "Round amount, multiple of 10,000"
+    assert reasons["JV000002"] == "Round amount, multiple of 1,000"
