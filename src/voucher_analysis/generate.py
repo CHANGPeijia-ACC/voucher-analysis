@@ -674,10 +674,15 @@ def inject_keywords(vouchers, hols, rng):
 
 
 def inject_extreme_amounts(vouchers, hols, rng):
-    """Multiply a normal invoice by 15 to 30 times."""
+    """Set an invoice to 10 to 30 times the normal median of its account.
+
+    The amount is based on the account median, not on the original invoice,
+    because a small invoice multiplied many times can still look normal.
+    """
     for v in pick(vouchers, rng, ANOMALY_COUNT, kinds=("purchase", "expense_invoice"),
                   condition=lambda v: v["lines"][0]["account_code"] != "1601"):
-        set_invoice_net(v, v["lines"][0]["debit"] * rng.uniform(15, 30))
+        median, _ = AMOUNT_PROFILE[v["lines"][0]["account_code"]]
+        set_invoice_net(v, median * rng.uniform(10, 30))
         v["anomaly"] = "extreme_amount"
 
 

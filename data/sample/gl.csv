@@ -61,9 +61,9 @@ JV000019,5,2025-01-02,2025-01-03 14:13:07,1405,Inventory 库存商品,,20218.38,
 JV000020,1,2025-01-02,2025-01-03 14:41:12,1405,Inventory 库存商品,5186.61,,Production,Baocheng Plastics 宝成塑料,prep05,appr02,Purchase of materials
 JV000020,2,2025-01-02,2025-01-03 14:41:12,222101,Input VAT 应交增值税-进项税额,674.26,,Production,Baocheng Plastics 宝成塑料,prep05,appr02,Purchase of materials
 JV000020,3,2025-01-02,2025-01-03 14:41:12,2202,Accounts payable 应付账款,,5860.87,Production,Baocheng Plastics 宝成塑料,prep05,appr02,Purchase of materials
-JV000021,1,2025-01-02,2025-01-03 16:03:53,1405,Inventory 库存商品,210978.98,,Production,Baocheng Plastics 宝成塑料,prep05,appr03,Purchase of materials
-JV000021,2,2025-01-02,2025-01-03 16:03:53,222101,Input VAT 应交增值税-进项税额,27427.27,,Production,Baocheng Plastics 宝成塑料,prep05,appr03,Purchase of materials
-JV000021,3,2025-01-02,2025-01-03 16:03:53,2202,Accounts payable 应付账款,,238406.25,Production,Baocheng Plastics 宝成塑料,prep05,appr03,Purchase of materials
+JV000021,1,2025-01-02,2025-01-03 16:03:53,1405,Inventory 库存商品,147307.84,,Production,Baocheng Plastics 宝成塑料,prep05,appr03,Purchase of materials
+JV000021,2,2025-01-02,2025-01-03 16:03:53,222101,Input VAT 应交增值税-进项税额,19150.02,,Production,Baocheng Plastics 宝成塑料,prep05,appr03,Purchase of materials
+JV000021,3,2025-01-02,2025-01-03 16:03:53,2202,Accounts payable 应付账款,,166457.86,Production,Baocheng Plastics 宝成塑料,prep05,appr03,Purchase of materials
 JV000022,1,2025-01-02,2025-01-06 13:29:15,6601,Travel expense 差旅费,2603.45,,Finance,Jietu Travel Service 捷途旅行社,prep03,appr03,Business travel
 JV000022,2,2025-01-02,2025-01-06 13:29:15,1002,Bank deposits 银行存款,,2603.45,Finance,Jietu Travel Service 捷途旅行社,prep03,appr03,Business travel
 JV000023,1,2025-01-03,2025-01-03 09:27:09,1405,Inventory 库存商品,11152.68,,Production,Baocheng Plastics 宝成塑料,prep03,appr03,Purchase of materials
@@ -940,9 +940,9 @@ JV000285,2,2025-01-23,2025-01-23 15:59:11,6001,Sales revenue 主营业务收入,
 JV000285,3,2025-01-23,2025-01-23 15:59:11,222102,Output VAT 应交增值税-销项税额,,6231.62,Sales,,prep01,appr03,Sales invoice
 JV000285,4,2025-01-23,2025-01-23 15:59:11,6401,Cost of sales 主营业务成本,32071.05,,Sales,,prep01,appr03,Sales invoice
 JV000285,5,2025-01-23,2025-01-23 15:59:11,1405,Inventory 库存商品,,32071.05,Sales,,prep01,appr03,Sales invoice
-JV000286,1,2025-01-23,2025-01-23 18:06:39,1405,Inventory 库存商品,427165.24,,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
-JV000286,2,2025-01-23,2025-01-23 18:06:39,222101,Input VAT 应交增值税-进项税额,55531.48,,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
-JV000286,3,2025-01-23,2025-01-23 18:06:39,2202,Accounts payable 应付账款,,482696.72,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
+JV000286,1,2025-01-23,2025-01-23 18:06:39,1405,Inventory 库存商品,138396.31,,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
+JV000286,2,2025-01-23,2025-01-23 18:06:39,222101,Input VAT 应交增值税-进项税额,17991.52,,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
+JV000286,3,2025-01-23,2025-01-23 18:06:39,2202,Accounts payable 应付账款,,156387.83,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
 JV000287,1,2025-01-23,2025-01-23 18:21:23,1122,Accounts receivable 应收账款,50229.84,,Sales,,prep02,appr03,Sales invoice
 JV000287,2,2025-01-23,2025-01-23 18:21:23,6001,Sales revenue 主营业务收入,,44451.19,Sales,,prep02,appr03,Sales invoice
 JV000287,3,2025-01-23,2025-01-23 18:21:23,222102,Output VAT 应交增值税-销项税额,,5778.65,Sales,,prep02,appr03,Sales invoice
@@ -1644,9 +1644,9 @@ JV000508,2,2025-02-13,2025-02-13 12:44:55,6001,Sales revenue 主营业务收入,
 JV000508,3,2025-02-13,2025-02-13 12:44:55,222102,Output VAT 应交增值税-销项税额,,9348.00,Sales,,prep05,appr02,Sales invoice
 JV000508,4,2025-02-13,2025-02-13 12:44:55,6401,Cost of sales 主营业务成本,46444.26,,Sales,,prep05,appr02,Sales invoice
 JV000508,5,2025-02-13,2025-02-13 12:44:55,1405,Inventory 库存商品,,46444.26,Sales,,prep05,appr02,Sales invoice
-JV000509,1,2025-02-13,2025-02-13 13:11:24,1405,Inventory 库存商品,126407.06,,Production,Dingxin Steel 鼎鑫钢材,prep01,appr02,Purchase of materials
-JV000509,2,2025-02-13,2025-02-13 13:11:24,222101,Input VAT 应交增值税-进项税额,16432.92,,Production,Dingxin Steel 鼎鑫钢材,prep01,appr02,Purchase of materials
-JV000509,3,2025-02-13,2025-02-13 13:11:24,2202,Accounts payable 应付账款,,142839.98,Production,Dingxin Steel 鼎鑫钢材,prep01,appr02,Purchase of materials
+JV000509,1,2025-02-13,2025-02-13 13:11:24,1405,Inventory 库存商品,95106.87,,Production,Dingxin Steel 鼎鑫钢材,prep01,appr02,Purchase of materials
+JV000509,2,2025-02-13,2025-02-13 13:11:24,222101,Input VAT 应交增值税-进项税额,12363.89,,Production,Dingxin Steel 鼎鑫钢材,prep01,appr02,Purchase of materials
+JV000509,3,2025-02-13,2025-02-13 13:11:24,2202,Accounts payable 应付账款,,107470.76,Production,Dingxin Steel 鼎鑫钢材,prep01,appr02,Purchase of materials
 JV000510,1,2025-02-13,2025-02-13 13:52:28,1405,Inventory 库存商品,7124.22,,Production,Baocheng Plastics 宝成塑料,prep04,appr03,Purchase of materials
 JV000510,2,2025-02-13,2025-02-13 13:52:28,222101,Input VAT 应交增值税-进项税额,926.15,,Production,Baocheng Plastics 宝成塑料,prep04,appr03,Purchase of materials
 JV000510,3,2025-02-13,2025-02-13 13:52:28,2202,Accounts payable 应付账款,,8050.37,Production,Baocheng Plastics 宝成塑料,prep04,appr03,Purchase of materials
@@ -5140,9 +5140,9 @@ JV001568,2,2025-04-22,2025-04-23 17:59:40,222101,Input VAT 应交增值税-进�
 JV001568,3,2025-04-22,2025-04-23 17:59:40,2202,Accounts payable 应付账款,,17346.26,Production,Kangda Metals 康达金属,prep04,appr02,Purchase of materials
 JV001569,1,2025-04-22,2025-04-24 09:15:59,1002,Bank deposits 银行存款,84132.70,,Sales,,prep05,appr03,Receipt from Anping Hardware 安平五金
 JV001569,2,2025-04-22,2025-04-24 09:15:59,1122,Accounts receivable 应收账款,,84132.70,Sales,,prep05,appr03,Receipt from Anping Hardware 安平五金
-JV001570,1,2025-04-22,2025-04-24 14:14:14,1405,Inventory 库存商品,76827.22,,Production,Baocheng Plastics 宝成塑料,prep04,appr02,Purchase of materials
-JV001570,2,2025-04-22,2025-04-24 14:14:14,222101,Input VAT 应交增值税-进项税额,9987.54,,Production,Baocheng Plastics 宝成塑料,prep04,appr02,Purchase of materials
-JV001570,3,2025-04-22,2025-04-24 14:14:14,2202,Accounts payable 应付账款,,86814.76,Production,Baocheng Plastics 宝成塑料,prep04,appr02,Purchase of materials
+JV001570,1,2025-04-22,2025-04-24 14:14:14,1405,Inventory 库存商品,81633.91,,Production,Baocheng Plastics 宝成塑料,prep04,appr02,Purchase of materials
+JV001570,2,2025-04-22,2025-04-24 14:14:14,222101,Input VAT 应交增值税-进项税额,10612.41,,Production,Baocheng Plastics 宝成塑料,prep04,appr02,Purchase of materials
+JV001570,3,2025-04-22,2025-04-24 14:14:14,2202,Accounts payable 应付账款,,92246.32,Production,Baocheng Plastics 宝成塑料,prep04,appr02,Purchase of materials
 JV001571,1,2025-04-22,2025-04-24 14:18:36,1405,Inventory 库存商品,1443.81,,Production,Hongyu Electronics 鸿宇电子,prep02,appr01,Purchase of materials
 JV001571,2,2025-04-22,2025-04-24 14:18:36,222101,Input VAT 应交增值税-进项税额,187.70,,Production,Hongyu Electronics 鸿宇电子,prep02,appr01,Purchase of materials
 JV001571,3,2025-04-22,2025-04-24 14:18:36,2202,Accounts payable 应付账款,,1631.51,Production,Hongyu Electronics 鸿宇电子,prep02,appr01,Purchase of materials
@@ -5225,9 +5225,9 @@ JV001595,2,2025-04-23,2025-04-25 14:50:58,6001,Sales revenue 主营业务收入,
 JV001595,3,2025-04-23,2025-04-25 14:50:58,222102,Output VAT 应交增值税-销项税额,,5467.71,Sales,,prep03,appr03,Sales invoice
 JV001595,4,2025-04-23,2025-04-25 14:50:58,6401,Cost of sales 主营业务成本,26170.21,,Sales,,prep03,appr03,Sales invoice
 JV001595,5,2025-04-23,2025-04-25 14:50:58,1405,Inventory 库存商品,,26170.21,Sales,,prep03,appr03,Sales invoice
-JV001596,1,2025-04-23,2025-04-25 17:06:49,6611,Advertising 广告宣传费,332064.81,,Sales,Xingchen Advertising 星辰广告,prep04,appr01,Advertising services
-JV001596,2,2025-04-23,2025-04-25 17:06:49,222101,Input VAT 应交增值税-进项税额,19923.89,,Sales,Xingchen Advertising 星辰广告,prep04,appr01,Advertising services
-JV001596,3,2025-04-23,2025-04-25 17:06:49,2202,Accounts payable 应付账款,,351988.70,Sales,Xingchen Advertising 星辰广告,prep04,appr01,Advertising services
+JV001596,1,2025-04-23,2025-04-25 17:06:49,6611,Advertising 广告宣传费,359697.87,,Sales,Xingchen Advertising 星辰广告,prep04,appr01,Advertising services
+JV001596,2,2025-04-23,2025-04-25 17:06:49,222101,Input VAT 应交增值税-进项税额,21581.87,,Sales,Xingchen Advertising 星辰广告,prep04,appr01,Advertising services
+JV001596,3,2025-04-23,2025-04-25 17:06:49,2202,Accounts payable 应付账款,,381279.74,Sales,Xingchen Advertising 星辰广告,prep04,appr01,Advertising services
 JV001597,1,2025-04-24,2025-04-24 10:25:29,1405,Inventory 库存商品,7033.08,,Production,Baocheng Plastics 宝成塑料,prep03,appr03,Purchase of materials
 JV001597,2,2025-04-24,2025-04-24 10:25:29,222101,Input VAT 应交增值税-进项税额,914.30,,Production,Baocheng Plastics 宝成塑料,prep03,appr03,Purchase of materials
 JV001597,3,2025-04-24,2025-04-24 10:25:29,2202,Accounts payable 应付账款,,7947.38,Production,Baocheng Plastics 宝成塑料,prep03,appr03,Purchase of materials
@@ -6471,9 +6471,9 @@ JV001935,2,2025-05-19,2025-05-19 11:48:24,6001,Sales revenue 主营业务收入,
 JV001935,3,2025-05-19,2025-05-19 11:48:24,222102,Output VAT 应交增值税-销项税额,,12463.19,Sales,,prep02,appr02,Sales invoice
 JV001935,4,2025-05-19,2025-05-19 11:48:24,6401,Cost of sales 主营业务成本,61371.62,,Sales,,prep02,appr02,Sales invoice
 JV001935,5,2025-05-19,2025-05-19 11:48:24,1405,Inventory 库存商品,,61371.62,Sales,,prep02,appr02,Sales invoice
-JV001936,1,2025-05-19,2025-05-19 11:56:31,6606,Consulting fees 咨询费,877057.00,,Finance,Zhiyuan Consulting 智远咨询,prep03,appr01,Consulting services
-JV001936,2,2025-05-19,2025-05-19 11:56:31,222101,Input VAT 应交增值税-进项税额,52623.42,,Finance,Zhiyuan Consulting 智远咨询,prep03,appr01,Consulting services
-JV001936,3,2025-05-19,2025-05-19 11:56:31,2202,Accounts payable 应付账款,,929680.42,Finance,Zhiyuan Consulting 智远咨询,prep03,appr01,Consulting services
+JV001936,1,2025-05-19,2025-05-19 11:56:31,6606,Consulting fees 咨询费,235538.18,,Finance,Zhiyuan Consulting 智远咨询,prep03,appr01,Consulting services
+JV001936,2,2025-05-19,2025-05-19 11:56:31,222101,Input VAT 应交增值税-进项税额,14132.29,,Finance,Zhiyuan Consulting 智远咨询,prep03,appr01,Consulting services
+JV001936,3,2025-05-19,2025-05-19 11:56:31,2202,Accounts payable 应付账款,,249670.47,Finance,Zhiyuan Consulting 智远咨询,prep03,appr01,Consulting services
 JV001937,1,2025-05-19,2025-05-19 12:56:03,1122,Accounts receivable 应收账款,71632.47,,Sales,,prep01,appr02,Sales invoice
 JV001937,2,2025-05-19,2025-05-19 12:56:03,6001,Sales revenue 主营业务收入,,63391.57,Sales,,prep01,appr02,Sales invoice
 JV001937,3,2025-05-19,2025-05-19 12:56:03,222102,Output VAT 应交增值税-销项税额,,8240.90,Sales,,prep01,appr02,Sales invoice
@@ -7411,9 +7411,9 @@ JV002188,2,2025-06-03,2025-06-03 12:08:29,6001,Sales revenue 主营业务收入,
 JV002188,3,2025-06-03,2025-06-03 12:08:29,222102,Output VAT 应交增值税-销项税额,,9570.86,Sales,,prep03,appr03,Sales invoice
 JV002188,4,2025-06-03,2025-06-03 12:08:29,6401,Cost of sales 主营业务成本,41411.89,,Sales,,prep03,appr03,Sales invoice
 JV002188,5,2025-06-03,2025-06-03 12:08:29,1405,Inventory 库存商品,,41411.89,Sales,,prep03,appr03,Sales invoice
-JV002189,1,2025-06-03,2025-06-03 12:51:33,1405,Inventory 库存商品,841346.06,,Production,Tianrui Materials 天瑞物资,prep01,appr03,Purchase of materials
-JV002189,2,2025-06-03,2025-06-03 12:51:33,222101,Input VAT 应交增值税-进项税额,109374.99,,Production,Tianrui Materials 天瑞物资,prep01,appr03,Purchase of materials
-JV002189,3,2025-06-03,2025-06-03 12:51:33,2202,Accounts payable 应付账款,,950721.05,Production,Tianrui Materials 天瑞物资,prep01,appr03,Purchase of materials
+JV002189,1,2025-06-03,2025-06-03 12:51:33,1405,Inventory 库存商品,206962.72,,Production,Tianrui Materials 天瑞物资,prep01,appr03,Purchase of materials
+JV002189,2,2025-06-03,2025-06-03 12:51:33,222101,Input VAT 应交增值税-进项税额,26905.15,,Production,Tianrui Materials 天瑞物资,prep01,appr03,Purchase of materials
+JV002189,3,2025-06-03,2025-06-03 12:51:33,2202,Accounts payable 应付账款,,233867.87,Production,Tianrui Materials 天瑞物资,prep01,appr03,Purchase of materials
 JV002190,1,2025-06-03,2025-06-03 13:04:54,1122,Accounts receivable 应收账款,127824.63,,Sales,,prep01,appr03,Sales invoice
 JV002190,2,2025-06-03,2025-06-03 13:04:54,6001,Sales revenue 主营业务收入,,113119.14,Sales,,prep01,appr03,Sales invoice
 JV002190,3,2025-06-03,2025-06-03 13:04:54,222102,Output VAT 应交增值税-销项税额,,14705.49,Sales,,prep01,appr03,Sales invoice
@@ -7988,9 +7988,9 @@ JV002378,3,2025-06-16,2025-06-16 11:10:40,2202,Accounts payable 应付账款,,76
 JV002379,1,2025-06-16,2025-06-16 11:14:19,1405,Inventory 库存商品,13149.23,,Production,Ruifeng Components 瑞丰元件,prep02,appr02,Purchase of materials
 JV002379,2,2025-06-16,2025-06-16 11:14:19,222101,Input VAT 应交增值税-进项税额,1709.40,,Production,Ruifeng Components 瑞丰元件,prep02,appr02,Purchase of materials
 JV002379,3,2025-06-16,2025-06-16 11:14:19,2202,Accounts payable 应付账款,,14858.63,Production,Ruifeng Components 瑞丰元件,prep02,appr02,Purchase of materials
-JV002380,1,2025-06-16,2025-06-16 11:58:46,1405,Inventory 库存商品,494070.44,,Production,Huamei Textiles 华美纺织,prep01,appr03,Purchase of materials
-JV002380,2,2025-06-16,2025-06-16 11:58:46,222101,Input VAT 应交增值税-进项税额,64229.16,,Production,Huamei Textiles 华美纺织,prep01,appr03,Purchase of materials
-JV002380,3,2025-06-16,2025-06-16 11:58:46,2202,Accounts payable 应付账款,,558299.60,Production,Huamei Textiles 华美纺织,prep01,appr03,Purchase of materials
+JV002380,1,2025-06-16,2025-06-16 11:58:46,1405,Inventory 库存商品,206127.69,,Production,Huamei Textiles 华美纺织,prep01,appr03,Purchase of materials
+JV002380,2,2025-06-16,2025-06-16 11:58:46,222101,Input VAT 应交增值税-进项税额,26796.60,,Production,Huamei Textiles 华美纺织,prep01,appr03,Purchase of materials
+JV002380,3,2025-06-16,2025-06-16 11:58:46,2202,Accounts payable 应付账款,,232924.29,Production,Huamei Textiles 华美纺织,prep01,appr03,Purchase of materials
 JV002381,1,2025-06-16,2025-06-16 12:23:04,1122,Accounts receivable 应收账款,60826.42,,Sales,,prep01,appr01,Sales invoice
 JV002381,2,2025-06-16,2025-06-16 12:23:04,6001,Sales revenue 主营业务收入,,53828.69,Sales,,prep01,appr01,Sales invoice
 JV002381,3,2025-06-16,2025-06-16 12:23:04,222102,Output VAT 应交增值税-销项税额,,6997.73,Sales,,prep01,appr01,Sales invoice
@@ -11017,9 +11017,9 @@ JV003237,4,2025-08-04,2025-08-04 14:14:21,6401,Cost of sales 主营业务成本,
 JV003237,5,2025-08-04,2025-08-04 14:14:21,1405,Inventory 库存商品,,32079.51,Sales,,prep02,appr03,Sales invoice
 JV003238,1,2025-08-04,2025-08-04 15:21:28,6601,Travel expense 差旅费,2854.88,,Admin,Jietu Travel Service 捷途旅行社,prep04,appr01,Business travel
 JV003238,2,2025-08-04,2025-08-04 15:21:28,1002,Bank deposits 银行存款,,2854.88,Admin,Jietu Travel Service 捷途旅行社,prep04,appr01,Business travel
-JV003239,1,2025-08-04,2025-08-04 15:38:51,1405,Inventory 库存商品,98538.18,,Production,Dingxin Steel 鼎鑫钢材,prep01,appr01,Purchase of materials
-JV003239,2,2025-08-04,2025-08-04 15:38:51,222101,Input VAT 应交增值税-进项税额,12809.96,,Production,Dingxin Steel 鼎鑫钢材,prep01,appr01,Purchase of materials
-JV003239,3,2025-08-04,2025-08-04 15:38:51,2202,Accounts payable 应付账款,,111348.14,Production,Dingxin Steel 鼎鑫钢材,prep01,appr01,Purchase of materials
+JV003239,1,2025-08-04,2025-08-04 15:38:51,1405,Inventory 库存商品,127707.47,,Production,Dingxin Steel 鼎鑫钢材,prep01,appr01,Purchase of materials
+JV003239,2,2025-08-04,2025-08-04 15:38:51,222101,Input VAT 应交增值税-进项税额,16601.97,,Production,Dingxin Steel 鼎鑫钢材,prep01,appr01,Purchase of materials
+JV003239,3,2025-08-04,2025-08-04 15:38:51,2202,Accounts payable 应付账款,,144309.44,Production,Dingxin Steel 鼎鑫钢材,prep01,appr01,Purchase of materials
 JV003240,1,2025-08-04,2025-08-04 15:51:30,6601,Travel expense 差旅费,3686.69,,Admin,Jietu Travel Service 捷途旅行社,prep04,appr01,Business travel
 JV003240,2,2025-08-04,2025-08-04 15:51:30,1002,Bank deposits 银行存款,,3686.69,Admin,Jietu Travel Service 捷途旅行社,prep04,appr01,Business travel
 JV003241,1,2025-08-04,2025-08-04 15:59:53,1405,Inventory 库存商品,10331.88,,Production,Jiahe Packaging 嘉禾包装,prep04,appr02,Purchase of materials
@@ -11144,9 +11144,9 @@ JV003281,2,2025-08-05,2025-08-06 12:10:17,6001,Sales revenue 主营业务收入,
 JV003281,3,2025-08-05,2025-08-06 12:10:17,222102,Output VAT 应交增值税-销项税额,,4459.55,Sales,,prep02,appr03,Sales invoice
 JV003281,4,2025-08-05,2025-08-06 12:10:17,6401,Cost of sales 主营业务成本,21468.37,,Sales,,prep02,appr03,Sales invoice
 JV003281,5,2025-08-05,2025-08-06 12:10:17,1405,Inventory 库存商品,,21468.37,Sales,,prep02,appr03,Sales invoice
-JV003282,1,2025-08-05,2025-08-06 13:52:37,1405,Inventory 库存商品,83308.71,,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
-JV003282,2,2025-08-05,2025-08-06 13:52:37,222101,Input VAT 应交增值税-进项税额,10830.13,,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
-JV003282,3,2025-08-05,2025-08-06 13:52:37,2202,Accounts payable 应付账款,,94138.84,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
+JV003282,1,2025-08-05,2025-08-06 13:52:37,1405,Inventory 库存商品,116444.46,,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
+JV003282,2,2025-08-05,2025-08-06 13:52:37,222101,Input VAT 应交增值税-进项税额,15137.78,,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
+JV003282,3,2025-08-05,2025-08-06 13:52:37,2202,Accounts payable 应付账款,,131582.24,Production,Lianchuang Parts 联创配件,prep01,appr02,Purchase of materials
 JV003283,1,2025-08-05,2025-08-06 13:55:04,1002,Bank deposits 银行存款,90983.74,,Sales,,prep03,appr02,Receipt from Beichen Trading 北辰贸易
 JV003283,2,2025-08-05,2025-08-06 13:55:04,1122,Accounts receivable 应收账款,,90983.74,Sales,,prep03,appr02,Receipt from Beichen Trading 北辰贸易
 JV003284,1,2025-08-05,2025-08-06 15:15:19,1405,Inventory 库存商品,2729.54,,Production,Hongyu Electronics 鸿宇电子,prep01,appr01,Purchase of materials
@@ -11721,9 +11721,9 @@ JV003465,3,2025-08-15,2025-08-15 11:58:21,2202,Accounts payable 应付账款,,11
 JV003466,1,2025-08-15,2025-08-15 12:32:22,1405,Inventory 库存商品,2016.86,,Production,Lianchuang Parts 联创配件,prep03,appr01,Purchase of materials
 JV003466,2,2025-08-15,2025-08-15 12:32:22,222101,Input VAT 应交增值税-进项税额,262.19,,Production,Lianchuang Parts 联创配件,prep03,appr01,Purchase of materials
 JV003466,3,2025-08-15,2025-08-15 12:32:22,2202,Accounts payable 应付账款,,2279.05,Production,Lianchuang Parts 联创配件,prep03,appr01,Purchase of materials
-JV003467,1,2025-08-15,2025-08-15 12:39:01,1405,Inventory 库存商品,33823.73,,Production,Hongyu Electronics 鸿宇电子,prep05,appr03,Purchase of materials
-JV003467,2,2025-08-15,2025-08-15 12:39:01,222101,Input VAT 应交增值税-进项税额,4397.08,,Production,Hongyu Electronics 鸿宇电子,prep05,appr03,Purchase of materials
-JV003467,3,2025-08-15,2025-08-15 12:39:01,2202,Accounts payable 应付账款,,38220.81,Production,Hongyu Electronics 鸿宇电子,prep05,appr03,Purchase of materials
+JV003467,1,2025-08-15,2025-08-15 12:39:01,1405,Inventory 库存商品,71680.46,,Production,Hongyu Electronics 鸿宇电子,prep05,appr03,Purchase of materials
+JV003467,2,2025-08-15,2025-08-15 12:39:01,222101,Input VAT 应交增值税-进项税额,9318.46,,Production,Hongyu Electronics 鸿宇电子,prep05,appr03,Purchase of materials
+JV003467,3,2025-08-15,2025-08-15 12:39:01,2202,Accounts payable 应付账款,,80998.92,Production,Hongyu Electronics 鸿宇电子,prep05,appr03,Purchase of materials
 JV003468,1,2025-08-15,2025-08-15 13:53:30,1122,Accounts receivable 应收账款,67131.75,,Sales,,prep05,appr02,Sales invoice
 JV003468,2,2025-08-15,2025-08-15 13:53:30,6001,Sales revenue 主营业务收入,,59408.63,Sales,,prep05,appr02,Sales invoice
 JV003468,3,2025-08-15,2025-08-15 13:53:30,222102,Output VAT 应交增值税-销项税额,,7723.12,Sales,,prep05,appr02,Sales invoice
@@ -13871,9 +13871,9 @@ JV004127,3,2025-09-24,2025-09-26 11:33:23,2202,Accounts payable 应付账款,,32
 JV004128,1,2025-09-24,2025-09-26 13:05:20,6609,Repairs and maintenance 修理费,10155.25,,Production,Anjie Equipment Repair 安捷设备维修,prep04,appr03,Repair services
 JV004128,2,2025-09-24,2025-09-26 13:05:20,222101,Input VAT 应交增值税-进项税额,1320.18,,Production,Anjie Equipment Repair 安捷设备维修,prep04,appr03,Repair services
 JV004128,3,2025-09-24,2025-09-26 13:05:20,2202,Accounts payable 应付账款,,11475.43,Production,Anjie Equipment Repair 安捷设备维修,prep04,appr03,Repair services
-JV004129,1,2025-09-24,2025-09-26 16:14:24,1405,Inventory 库存商品,72336.19,,Production,Dingxin Steel 鼎鑫钢材,prep05,appr03,Purchase of materials
-JV004129,2,2025-09-24,2025-09-26 16:14:24,222101,Input VAT 应交增值税-进项税额,9403.70,,Production,Dingxin Steel 鼎鑫钢材,prep05,appr03,Purchase of materials
-JV004129,3,2025-09-24,2025-09-26 16:14:24,2202,Accounts payable 应付账款,,81739.89,Production,Dingxin Steel 鼎鑫钢材,prep05,appr03,Purchase of materials
+JV004129,1,2025-09-24,2025-09-26 16:14:24,1405,Inventory 库存商品,101765.86,,Production,Dingxin Steel 鼎鑫钢材,prep05,appr03,Purchase of materials
+JV004129,2,2025-09-24,2025-09-26 16:14:24,222101,Input VAT 应交增值税-进项税额,13229.56,,Production,Dingxin Steel 鼎鑫钢材,prep05,appr03,Purchase of materials
+JV004129,3,2025-09-24,2025-09-26 16:14:24,2202,Accounts payable 应付账款,,114995.42,Production,Dingxin Steel 鼎鑫钢材,prep05,appr03,Purchase of materials
 JV004130,1,2025-09-24,2025-09-26 17:32:40,1122,Accounts receivable 应收账款,76526.90,,Sales,,prep02,appr01,Sales invoice
 JV004130,2,2025-09-24,2025-09-26 17:32:40,6001,Sales revenue 主营业务收入,,67722.92,Sales,,prep02,appr01,Sales invoice
 JV004130,3,2025-09-24,2025-09-26 17:32:40,222102,Output VAT 应交增值税-销项税额,,8803.98,Sales,,prep02,appr01,Sales invoice
@@ -16438,9 +16438,9 @@ JV004831,2,2025-11-12,2025-11-12 15:18:33,6001,Sales revenue 主营业务收入,
 JV004831,3,2025-11-12,2025-11-12 15:18:33,222102,Output VAT 应交增值税-销项税额,,7003.13,Sales,,prep02,appr01,Sales invoice
 JV004831,4,2025-11-12,2025-11-12 15:18:33,6401,Cost of sales 主营业务成本,31502.92,,Sales,,prep02,appr01,Sales invoice
 JV004831,5,2025-11-12,2025-11-12 15:18:33,1405,Inventory 库存商品,,31502.92,Sales,,prep02,appr01,Sales invoice
-JV004832,1,2025-11-12,2025-11-12 16:11:20,1405,Inventory 库存商品,80548.87,,Production,Hongyu Electronics 鸿宇电子,prep02,appr01,Purchase of materials
-JV004832,2,2025-11-12,2025-11-12 16:11:20,222101,Input VAT 应交增值税-进项税额,10471.35,,Production,Hongyu Electronics 鸿宇电子,prep02,appr01,Purchase of materials
-JV004832,3,2025-11-12,2025-11-12 16:11:20,2202,Accounts payable 应付账款,,91020.22,Production,Hongyu Electronics 鸿宇电子,prep02,appr01,Purchase of materials
+JV004832,1,2025-11-12,2025-11-12 16:11:20,1405,Inventory 库存商品,169020.72,,Production,Hongyu Electronics 鸿宇电子,prep02,appr01,Purchase of materials
+JV004832,2,2025-11-12,2025-11-12 16:11:20,222101,Input VAT 应交增值税-进项税额,21972.69,,Production,Hongyu Electronics 鸿宇电子,prep02,appr01,Purchase of materials
+JV004832,3,2025-11-12,2025-11-12 16:11:20,2202,Accounts payable 应付账款,,190993.41,Production,Hongyu Electronics 鸿宇电子,prep02,appr01,Purchase of materials
 JV004833,1,2025-11-12,2025-11-12 16:14:38,1405,Inventory 库存商品,5879.97,,Production,Lianchuang Parts 联创配件,prep01,appr01,Purchase of materials
 JV004833,2,2025-11-12,2025-11-12 16:14:38,222101,Input VAT 应交增值税-进项税额,764.40,,Production,Lianchuang Parts 联创配件,prep01,appr01,Purchase of materials
 JV004833,3,2025-11-12,2025-11-12 16:14:38,2202,Accounts payable 应付账款,,6644.37,Production,Lianchuang Parts 联创配件,prep01,appr01,Purchase of materials
@@ -18554,9 +18554,9 @@ JV005462,3,2025-12-17,2025-12-18 18:24:17,2202,Accounts payable 应付账款,,36
 JV005463,1,2025-12-17,2025-12-18 18:25:39,6609,Repairs and maintenance 修理费,2110.28,,Production,Wanli Facility Services 万里设施服务,prep04,appr02,Repair services
 JV005463,2,2025-12-17,2025-12-18 18:25:39,222101,Input VAT 应交增值税-进项税额,274.34,,Production,Wanli Facility Services 万里设施服务,prep04,appr02,Repair services
 JV005463,3,2025-12-17,2025-12-18 18:25:39,2202,Accounts payable 应付账款,,2384.62,Production,Wanli Facility Services 万里设施服务,prep04,appr02,Repair services
-JV005464,1,2025-12-18,2025-12-18 09:06:51,1405,Inventory 库存商品,91253.16,,Production,Tianrui Materials 天瑞物资,prep04,appr03,Purchase of materials
-JV005464,2,2025-12-18,2025-12-18 09:06:51,222101,Input VAT 应交增值税-进项税额,11862.91,,Production,Tianrui Materials 天瑞物资,prep04,appr03,Purchase of materials
-JV005464,3,2025-12-18,2025-12-18 09:06:51,2202,Accounts payable 应付账款,,103116.07,Production,Tianrui Materials 天瑞物资,prep04,appr03,Purchase of materials
+JV005464,1,2025-12-18,2025-12-18 09:06:51,1405,Inventory 库存商品,140471.00,,Production,Tianrui Materials 天瑞物资,prep04,appr03,Purchase of materials
+JV005464,2,2025-12-18,2025-12-18 09:06:51,222101,Input VAT 应交增值税-进项税额,18261.23,,Production,Tianrui Materials 天瑞物资,prep04,appr03,Purchase of materials
+JV005464,3,2025-12-18,2025-12-18 09:06:51,2202,Accounts payable 应付账款,,158732.23,Production,Tianrui Materials 天瑞物资,prep04,appr03,Purchase of materials
 JV005465,1,2025-12-18,2025-12-18 09:49:42,6601,Travel expense 差旅费,2360.62,,IT,Yunfan Ticketing 云帆票务,prep05,appr02,Business travel
 JV005465,2,2025-12-18,2025-12-18 09:49:42,1002,Bank deposits 银行存款,,2360.62,IT,Yunfan Ticketing 云帆票务,prep05,appr02,Business travel
 JV005466,1,2025-12-18,2025-12-18 09:51:15,1405,Inventory 库存商品,7686.06,,Production,Baocheng Plastics 宝成塑料,prep05,appr02,Purchase of materials
@@ -18761,9 +18761,9 @@ JV005530,2,2025-12-22,2025-12-24 13:06:03,1122,Accounts receivable 应收账款,
 JV005531,1,2025-12-22,2025-12-24 18:13:57,1405,Inventory 库存商品,10021.09,,Production,Ruifeng Components 瑞丰元件,prep05,appr03,Purchase of materials
 JV005531,2,2025-12-22,2025-12-24 18:13:57,222101,Input VAT 应交增值税-进项税额,1302.74,,Production,Ruifeng Components 瑞丰元件,prep05,appr03,Purchase of materials
 JV005531,3,2025-12-22,2025-12-24 18:13:57,2202,Accounts payable 应付账款,,11323.83,Production,Ruifeng Components 瑞丰元件,prep05,appr03,Purchase of materials
-JV005532,1,2025-12-23,2025-12-23 09:41:48,6611,Advertising 广告宣传费,881346.60,,Sales,Xingchen Advertising 星辰广告,prep04,appr02,Advertising services
-JV005532,2,2025-12-23,2025-12-23 09:41:48,222101,Input VAT 应交增值税-进项税额,52880.80,,Sales,Xingchen Advertising 星辰广告,prep04,appr02,Advertising services
-JV005532,3,2025-12-23,2025-12-23 09:41:48,2202,Accounts payable 应付账款,,934227.40,Sales,Xingchen Advertising 星辰广告,prep04,appr02,Advertising services
+JV005532,1,2025-12-23,2025-12-23 09:41:48,6611,Advertising 广告宣传费,394070.79,,Sales,Xingchen Advertising 星辰广告,prep04,appr02,Advertising services
+JV005532,2,2025-12-23,2025-12-23 09:41:48,222101,Input VAT 应交增值税-进项税额,23644.25,,Sales,Xingchen Advertising 星辰广告,prep04,appr02,Advertising services
+JV005532,3,2025-12-23,2025-12-23 09:41:48,2202,Accounts payable 应付账款,,417715.04,Sales,Xingchen Advertising 星辰广告,prep04,appr02,Advertising services
 JV005533,1,2025-12-23,2025-12-23 11:04:56,6603,Entertainment 业务招待费,1902.56,,IT,Songhe Tea House 松鹤茶楼,prep04,appr03,Client meal
 JV005533,2,2025-12-23,2025-12-23 11:04:56,1002,Bank deposits 银行存款,,1902.56,IT,Songhe Tea House 松鹤茶楼,prep04,appr03,Client meal
 JV005534,1,2025-12-23,2025-12-23 11:08:33,6602,Office supplies 办公费,1922.06,,Finance,Huaxin Office Supplies 华信办公用品,prep05,appr02,Office supplies
