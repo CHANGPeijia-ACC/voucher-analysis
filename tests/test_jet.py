@@ -52,3 +52,24 @@ def test_jet00_reports_each_problem(config):
     assert reasons["JV000004"] == "no debit or credit amount"
     assert reasons["JV000005"] == "negative amount"
     assert reasons["JV000006"] == "voucher_no and line_no used twice"
+
+
+def test_jet01_flags_only_unbalanced_vouchers(config):
+    gl = make_gl(
+        *voucher("JV000001", 100),
+        {"voucher_no": "JV000002", "line_no": 1, "debit": 100.00},
+        {"voucher_no": "JV000002", "line_no": 2, "debit": None, "credit": 90.00},
+    )
+    result = jet.jet01_unbalanced(gl, config)
+
+    assert flagged_vouchers(result) == {"JV000002"}
+    assert len(result) == 2
+    assert result["reason"].iloc[0] == "Debit 100.00 vs credit 90.00"
+
+
+def test_jet01_catches_one_cent(config):
+    gl = make_gl(
+        {"voucher_no": "JV000001", "line_no": 1, "debit": 100.01},
+        {"voucher_no": "JV000001", "line_no": 2, "debit": None, "credit": 100.00},
+    )
+    assert flagged_vouchers(jet.jet01_unbalanced(gl, config)) == {"JV000001"}

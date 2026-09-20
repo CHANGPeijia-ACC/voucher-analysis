@@ -99,3 +99,26 @@ def jet00_validation(gl, config):
         reasons[mask] = reasons[mask] + "; " + text
     flagged = reasons != ""
     return flag_lines(gl[flagged], "JET00", reasons[flagged].str.removeprefix("; "))
+
+
+# ============================================================
+# JET01 Unbalanced vouchers
+# ============================================================
+
+def jet01_unbalanced(gl, config):
+    """JET01 Unbalanced vouchers: total debit is not equal to total credit.
+
+    In double entry every voucher must balance. A difference points to a
+    keying error or to an entry that went around system controls.
+    """
+    tolerance = settings(config, "JET01_unbalanced")["tolerance"]
+    totals = gl.groupby("voucher_no")[["debit", "credit"]].sum()
+    difference = totals["debit"] - totals["credit"]
+    unbalanced = totals[difference.abs() >= tolerance]
+
+    texts = pd.Series(
+        [f"Debit {money_text(d)} vs credit {money_text(c)}"
+         for d, c in zip(unbalanced["debit"], unbalanced["credit"])],
+        index=unbalanced.index, dtype=object)
+    mask = gl["voucher_no"].isin(unbalanced.index)
+    return flag_whole_vouchers(gl, mask, "JET01", gl["voucher_no"].map(texts))
