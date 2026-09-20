@@ -250,3 +250,38 @@ def statement_ties(statement):
     """True when both adjusted balances are the same to the cent."""
     check = statement.loc[statement["side"] == "Check", "amount"].iloc[0]
     return abs(check) < 0.005
+
+
+# ============================================================
+# Run the whole reconciliation
+# ============================================================
+
+def reconcile(gl, bank, config):
+    """Match both sides, classify the rest and build the statement.
+
+    Returns a dict with three tables: matches, unmatched and statement.
+    """
+    s = settings(config)
+    book = book_bank_items(gl, config)
+    bank = bank_items(bank)
+    book_total = round(book["amount"].sum(), 2)
+    bank_total = round(bank["amount"].sum(), 2)
+
+    matches = []
+    for finder in [
+        lambda b, k: match_one_to_one(b, k, s["date_window_days"]),
+        lambda b, k: match_one_to_many(b, k, s["date_window_days"], s["max_group_size"]),
+        lambda b, k: match_amount_differences(b, k, s["date_window_days"],
+                                              s["max_relative_difference"]),
+    ]:
+        found, used_refs, used_vouchers = finder(book, bank)
+        matches.extend(found)
+        book = book[~book["voucher_no"].isin(used_vouchers)]
+        bank = bank[~bank["bank_ref"].isin(used_refs)]
+
+    match_table = pd.DataFrame(matches, columns=MATCH_COLUMNS[1:])
+    match_table.insert(0, "match_id", [f"M{i:06d}" for i in range(1, len(match_table) + 1)])
+    unmatched = classify_unmatched(book, bank)
+    statement = reconciliation_statement(unmatched, match_table,
+                                         s["opening_balance"], book_total, bank_total)
+    return {"matches": match_table, "unmatched": unmatched, "statement": statement}

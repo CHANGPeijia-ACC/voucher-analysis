@@ -186,3 +186,37 @@ def test_statement_ties_with_reconciling_items(config):
     assert amounts["Less: outstanding payments"] == -700.00
     assert amounts["Add or less: bank items not yet booked"] == -150.00
     assert amounts["Adjusted bank balance"] == amounts["Adjusted book balance"] == 5150.00
+
+
+def test_reconcile_returns_three_tables(config):
+    gl = make_gl(*payment("JV000001", 1000, "2025-03-03"))
+    bank = make_bank({"bank_date": "2025-03-04", "amount": -1000, "counterparty": "Supplier A"})
+    result = rec.reconcile(gl, bank, config)
+
+    assert set(result) == {"matches", "unmatched", "statement"}
+    assert list(result["matches"].columns) == rec.MATCH_COLUMNS
+    assert result["matches"]["match_id"].iloc[0] == "M000001"
+    assert result["unmatched"].empty
+    assert rec.statement_ties(result["statement"])
+
+
+def test_reconcile_uses_each_item_once(config):
+    """A voucher matched one to one is not offered to the later passes.
+
+    Here 1,500 equals 1,000 plus 500, but pass 1 has already used the 1,000
+    voucher, so the transfer stays unmatched. Running exact matches first is
+    the safer order: it never splits a pair that clearly belongs together.
+    """
+    gl = make_gl(
+        *payment("JV000001", 1000, "2025-03-03"),
+        *payment("JV000002", 500, "2025-03-03"),
+    )
+    bank = make_bank(
+        {"bank_date": "2025-03-03", "amount": -1000, "counterparty": "Supplier A"},
+        {"bank_date": "2025-03-04", "amount": -1500, "counterparty": "Supplier A"},
+    )
+    result = rec.reconcile(gl, bank, config)
+    vouchers = ", ".join(result["matches"]["voucher_nos"])
+
+    assert vouchers.count("JV000001") == 1
+    assert list(result["unmatched"]["item_type"]) == ["outstanding_payment", "bank_only"]
