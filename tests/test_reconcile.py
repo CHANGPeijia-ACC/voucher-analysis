@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from gl_builder import make_bank, make_gl, voucher
@@ -160,3 +161,28 @@ def test_classify_labels_the_remaining_items(config):
     assert types["JV000001"] == "outstanding_payment"
     assert types["JV000002"] == "deposit_in_transit"
     assert unmatched.loc[unmatched["bank_ref"] == "BR000001", "item_type"].iloc[0] == "bank_only"
+
+
+def test_statement_ties_with_reconciling_items(config):
+    """One payment already cleared, one still outstanding, one deposit in
+    transit and a bank charge the books do not have yet."""
+    book = rec.book_bank_items(make_gl(
+        *payment("JV000002", 700, "2025-12-30"),
+        *receipt("JV000003", 2000, "2025-12-31"),
+    ), config)
+    bank = rec.bank_items(make_bank(
+        {"bank_date": "2025-12-31", "amount": -150, "counterparty": "Bank charge"}))
+
+    unmatched = rec.classify_unmatched(book, bank)
+    no_matches = pd.DataFrame(columns=rec.MATCH_COLUMNS)
+    statement = rec.reconciliation_statement(
+        unmatched, no_matches, opening_balance=5000,
+        book_total=-1000 - 700 + 2000,      # includes the cleared payment
+        bank_total=-1000 - 150)
+
+    amounts = statement.set_index("item")["amount"]
+    assert rec.statement_ties(statement)
+    assert amounts["Add: deposits in transit"] == 2000.00
+    assert amounts["Less: outstanding payments"] == -700.00
+    assert amounts["Add or less: bank items not yet booked"] == -150.00
+    assert amounts["Adjusted bank balance"] == amounts["Adjusted book balance"] == 5150.00

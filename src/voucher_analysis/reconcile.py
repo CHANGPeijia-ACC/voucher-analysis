@@ -205,3 +205,48 @@ def classify_unmatched(book, bank):
             "date": row.bank_date, "amount": row.amount, "counterparty": row.counterparty,
         })
     return pd.DataFrame(rows, columns=UNMATCHED_COLUMNS)
+
+
+# ============================================================
+# Bank reconciliation statement
+# ============================================================
+
+def reconciliation_statement(unmatched, matches, opening_balance, book_total, bank_total):
+    """Build the two-sided statement and check that both sides agree.
+
+    Each side starts from its own closing balance and is adjusted for the
+    items the other side already has. Both adjusted balances must be equal.
+    """
+    bank_close = round(opening_balance + bank_total, 2)
+    book_close = round(opening_balance + book_total, 2)
+
+    def total(item_type):
+        return round(unmatched.loc[unmatched["item_type"] == item_type, "amount"].sum(), 2)
+
+    deposits = total("deposit_in_transit")          # positive
+    outstanding = total("outstanding_payment")      # negative
+    bank_only = total("bank_only")                  # charges are negative
+    differences = round(matches.loc[matches["match_type"] == "amount_difference",
+                                    "difference"].sum(), 2)
+
+    adjusted_bank = round(bank_close + deposits + outstanding, 2)
+    adjusted_book = round(book_close + bank_only + differences, 2)
+
+    rows = [
+        ("Bank", "Balance per bank statement", bank_close),
+        ("Bank", "Add: deposits in transit", deposits),
+        ("Bank", "Less: outstanding payments", outstanding),
+        ("Bank", "Adjusted bank balance", adjusted_bank),
+        ("Book", "Balance per general ledger", book_close),
+        ("Book", "Add or less: bank items not yet booked", bank_only),
+        ("Book", "Add or less: amount differences per bank", differences),
+        ("Book", "Adjusted book balance", adjusted_book),
+        ("Check", "Adjusted bank less adjusted book", round(adjusted_bank - adjusted_book, 2)),
+    ]
+    return pd.DataFrame(rows, columns=["side", "item", "amount"])
+
+
+def statement_ties(statement):
+    """True when both adjusted balances are the same to the cent."""
+    check = statement.loc[statement["side"] == "Check", "amount"].iloc[0]
+    return abs(check) < 0.005
