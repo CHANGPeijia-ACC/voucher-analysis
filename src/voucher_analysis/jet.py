@@ -186,3 +186,31 @@ def jet03_weekend_holiday(gl, config):
     reasons[is_holiday] = ("Posted on public holiday " + day_text[is_holiday]
                            + " (" + holiday_name[is_holiday] + ")")
     return flag_whole_vouchers(gl, is_weekend | is_holiday, "JET03", reasons)
+
+
+# ============================================================
+# JET04 Entries outside working hours
+# ============================================================
+
+def minutes_of_day(clock_text):
+    """Turn "08:30" into 510, the minutes since midnight."""
+    hours, minutes = clock_text.split(":")
+    return int(hours) * 60 + int(minutes)
+
+
+def jet04_outside_hours(gl, config):
+    """JET04 Entries made before work_start or at or after work_end.
+
+    Late-night entries are less likely to be supervised and can point to
+    shared passwords or entries made to avoid review.
+    """
+    s = settings(config, "JET04_outside_hours")
+    start = minutes_of_day(s["work_start"])
+    end = minutes_of_day(s["work_end"])
+
+    entry = gl["entry_time"]
+    minutes = entry.dt.hour * 60 + entry.dt.minute
+    mask = (minutes < start) | (minutes >= end)
+    reasons = ("Entered at " + entry.dt.strftime("%H:%M")
+               + f", outside {s['work_start']}-{s['work_end']}")
+    return flag_whole_vouchers(gl, mask, "JET04", reasons)

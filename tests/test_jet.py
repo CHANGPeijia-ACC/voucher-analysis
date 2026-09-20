@@ -108,3 +108,14 @@ def test_jet03_flags_weekend_and_holiday(config):
     assert set(reasons.index) == {"JV000002", "JV000003"}
     assert reasons["JV000002"] == "Posted on Saturday 2025-03-08"
     assert reasons["JV000003"].startswith("Posted on public holiday 2025-10-01")
+
+
+def test_jet04_uses_working_hours_boundaries(config):
+    times = {"JV000001": "07:59", "JV000002": "08:00", "JV000003": "19:59",
+             "JV000004": "20:00", "JV000005": "23:30"}
+    rows = []
+    for voucher_no, clock in times.items():
+        rows += voucher(voucher_no, 100, entry_time=f"2025-03-03 {clock}:00")
+    result = jet.jet04_outside_hours(make_gl(*rows), config)
+
+    assert flagged_vouchers(result) == {"JV000001", "JV000004", "JV000005"}
