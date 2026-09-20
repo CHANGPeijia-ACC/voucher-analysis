@@ -291,3 +291,18 @@ def jet06_round_amounts(gl, config):
         reasons[mask] = f"Round amount, multiple of {multiple:,}"
     flagged = reasons != ""
     return flag_lines(gl[flagged], "JET06", reasons[flagged])
+
+
+# ============================================================
+# JET07 Segregation of duties
+# ============================================================
+
+def jet07_same_preparer_approver(gl, config):
+    """JET07 Segregation of duties: the same person prepared and approved the voucher.
+
+    Approval is a control only when a second person checks the work. If one
+    person does both, errors and fraud are not caught.
+    """
+    mask = gl["prepared_by"].notna() & (gl["prepared_by"] == gl["approved_by"])
+    reasons = "Prepared and approved by " + gl["prepared_by"].fillna("")
+    return flag_whole_vouchers(gl, mask, "JET07", reasons)

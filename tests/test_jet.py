@@ -157,3 +157,14 @@ def test_jet06_flags_round_amounts_above_floor(config):
     assert set(reasons.index) == {"JV000001", "JV000002"}
     assert reasons["JV000001"] == "Round amount, multiple of 10,000"
     assert reasons["JV000002"] == "Round amount, multiple of 1,000"
+
+
+def test_jet07_flags_same_preparer_and_approver(config):
+    gl = make_gl(
+        *voucher("JV000001", 100, prepared_by="prep01", approved_by="appr01"),
+        *voucher("JV000002", 100, prepared_by="prep01", approved_by="prep01"),
+    )
+    result = jet.jet07_same_preparer_approver(gl, config)
+
+    assert flagged_vouchers(result) == {"JV000002"}
+    assert result["reason"].iloc[0] == "Prepared and approved by prep01"
