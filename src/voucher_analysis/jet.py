@@ -366,3 +366,59 @@ def jet09_keywords(gl, config):
         mask = (reasons == "") & text.str.contains(word, case=False, regex=False)
         reasons[mask] = f"Description contains '{word}'"
     return flag_whole_vouchers(gl, reasons != "", "JET09", reasons)
+
+
+# ============================================================
+# JET10 Amount outliers
+# ============================================================
+
+def robust_z_scores(values):
+    """Robust z-score: 0.6745 * (value - median) / MAD.
+
+    MAD, the median absolute deviation, is the median distance of the
+    values from their median. Median and MAD barely move when a few extreme
+    values are added, unlike mean and standard deviation. The factor 0.6745
+    puts the score on the same scale as an ordinary z-score. Returns None
+    when MAD is zero, for example when almost all amounts are identical.
+    """
+    median = values.median()
+    mad = (values - median).abs().median()
+    if mad == 0:
+        return None
+    return 0.6745 * (values - median) / mad
+
+
+def jet10_outliers(gl, config):
+    """JET10 Amounts that are unusually large for their account.
+
+    Scores are computed per account and side (debit or credit), because an
+    invoice and a payment on the same account are different kinds of line.
+    Accounts with fewer than min_lines lines are skipped, as are the accounts
+    in exclude_accounts: a bank line can settle many invoices at once, and
+    those invoices are already scored on their own accounts. Only large
+    amounts are flagged, since overstated or unauthorised amounts are the risk.
+    With log_scale the score uses log(amount): amounts are right-skewed,
+    with many small lines and a few large ones, and the log makes the
+    distribution closer to symmetric.
+    """
+    s = settings(config, "JET10_outliers")
+    excluded = [str(account) for account in s.get("exclude_accounts", [])]
+    lines = gl[(line_amount(gl) > 0) & ~gl["account_code"].isin(excluded)].copy()
+    lines["side"] = np.where(lines["debit"].notna(), "debit", "credit")
+    lines["value"] = line_amount(lines)
+
+    reasons = {}
+    for (account, side), group in lines.groupby(["account_code", "side"]):
+        if len(group) < s["min_lines"]:
+            continue
+        values = np.log(group["value"]) if s["log_scale"] else group["value"]
+        scores = robust_z_scores(values)
+        if scores is None:
+            continue
+        median = money_text(group["value"].median())
+        for index, score in scores[scores > s["z_threshold"]].items():
+            reasons[index] = (f"Robust z-score {score:.1f} among {len(group)} {side} lines "
+                              f"on account {account}, median {median}")
+
+    reasons = pd.Series(reasons, dtype=object)
+    return flag_lines(gl.loc[reasons.index], "JET10", reasons)

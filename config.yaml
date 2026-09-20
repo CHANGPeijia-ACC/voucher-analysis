@@ -39,6 +39,7 @@ jet:
     z_threshold: 3.5                     # robust z-score cut-off
     min_lines: 30                        # skip accounts with fewer lines than this
     log_scale: true                      # score log(amount), since amounts are right-skewed
+    exclude_accounts: ["1002"]           # bank lines can total many invoices; score the invoices instead
 
 reconcile:
   opening_balance: 5000000               # book and bank agree at the start of the year

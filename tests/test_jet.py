@@ -209,3 +209,46 @@ def test_jet09_matches_keywords_in_english_and_chinese(config):
     assert set(reasons.index) == {"JV000001", "JV000002"}
     assert reasons["JV000001"] == "Description contains 'reversal'"
     assert reasons["JV000002"] == "Description contains '暂估'"
+
+
+def outlier_ledger():
+    rows = []
+    for i in range(40):  # normal travel lines between 1,000 and 1,195
+        rows += voucher(f"JV{i + 1:06d}", 1000 + i * 5)
+    rows += voucher("JV000041", 50000)
+    for i in range(5):  # a small account: too few lines to score
+        rows += voucher(f"JV{i + 42:06d}", 100 if i < 4 else 90000,
+                        debit_account="6602", credit_account="2202")
+    return make_gl(*rows)
+
+
+def test_jet10_flags_extreme_amount(config):
+    result = jet.jet10_outliers(outlier_ledger(), config)
+
+    assert flagged_vouchers(result) == {"JV000041"}
+
+
+def test_jet10_works_without_log_scale(config):
+    config["jet"]["JET10_outliers"]["log_scale"] = False
+    result = jet.jet10_outliers(outlier_ledger(), config)
+
+    assert "JV000041" in flagged_vouchers(result)
+
+
+def test_jet10_skips_excluded_accounts(config):
+    config["jet"]["JET10_outliers"]["exclude_accounts"] = ["6601", "1002"]
+    assert jet.jet10_outliers(outlier_ledger(), config).empty
+
+
+def test_jet10_skips_accounts_with_identical_amounts(config):
+    rows = []
+    for i in range(40):
+        rows += voucher(f"JV{i + 1:06d}", 60000, debit_account="6604")
+    assert jet.jet10_outliers(make_gl(*rows), config).empty
+
+
+def test_robust_z_is_not_pulled_by_the_outlier():
+    import pandas as pd
+    values = pd.Series([10, 11, 12, 13, 14, 1000])
+    scores = jet.robust_z_scores(values)
+    assert scores.iloc[-1] > 100
