@@ -2,4 +2,4 @@
 
 from voucher_analysis.cli import main
 
-main()
+raise SystemExit(main())
